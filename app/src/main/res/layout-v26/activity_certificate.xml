@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.widget.RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_certificate"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg8"
+    android:orientation="vertical"
+    tools:context=".CertificateActivity">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tv_COAGenerator"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginTop="13dp"
+        android:layout_marginBottom="-45dp"
+        tools:layout_editor_absoluteY="74dp">
+
+        <TextView
+            android:id="@+id/tv_COAGenerator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:text="@string/coa_generator"
+            android:textIsSelectable="false"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="@+id/etCertTitle"
+            app:layout_constraintStart_toStartOf="@+id/etCertTitle"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+        <EditText
+            android:id="@+id/etCertName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:autofillHints=""
+            android:ems="10"
+            android:hint="@string/Artist"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/etCertSize"
+            app:layout_constraintStart_toStartOf="@+id/etCertSize"
+            app:layout_constraintTop_toBottomOf="@+id/etCertTitle"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etCertTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="@string/cert_title"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/etCertName"
+            app:layout_constraintStart_toStartOf="@+id/etCertName"
+            app:layout_constraintTop_toBottomOf="@+id/tv_COAGenerator"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etCertDateCreated"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="8dp"
+            android:ems="10"
+            android:hint="@string/DateCreated"
+            android:importantForAutofill="no"
+            android:inputType="date"
+            app:layout_constraintEnd_toStartOf="@+id/btnDate"
+            app:layout_constraintStart_toStartOf="@+id/etCertName"
+            app:layout_constraintTop_toBottomOf="@+id/etCertName"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etCertSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="@string/certSize"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="@+id/etCertWeight"
+            app:layout_constraintStart_toStartOf="@+id/etCertWeight"
+            app:layout_constraintTop_toBottomOf="@+id/etCertDateCreated"
+            tools:ignore="TextFields,UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etCertWeight"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="@string/certWeight"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="@+id/etCertTechnique"
+            app:layout_constraintStart_toStartOf="@+id/etCertTechnique"
+            app:layout_constraintTop_toBottomOf="@+id/etCertSize"
+            tools:ignore="TextFields,UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etCertTechnique"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="@string/certTechnique"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            app:layout_constraintEnd_toEndOf="@+id/etCertSignatureReadsAs"
+            app:layout_constraintStart_toStartOf="@+id/etCertSignatureReadsAs"
+            app:layout_constraintTop_toBottomOf="@+id/etCertWeight"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etCertSignatureReadsAs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="@string/certSigReads"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/etOriginalOwner"
+            app:layout_constraintStart_toStartOf="@+id/etOriginalOwner"
+            app:layout_constraintTop_toBottomOf="@+id/etCertTechnique"
+            tools:ignore="UnusedAttribute" />
+
+        <EditText
+            android:id="@+id/etOriginalOwner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            android:ems="10"
+            android:hint="@string/certOriginalOwner"
+            android:importantForAutofill="no"
+            android:inputType="textPersonName"
+            app:layout_constraintEnd_toEndOf="@+id/btnCertGenerate"
+            app:layout_constraintStart_toStartOf="@+id/btnCertGenerate"
+            app:layout_constraintTop_toBottomOf="@+id/etCertSignatureReadsAs"
+            tools:ignore="UnusedAttribute" />
+
+        <Button
+            android:id="@+id/btnCertGenerate"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="8dp"
+            android:text="@string/cert_generate"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etOriginalOwner" />
+
+        <Button
+            android:id="@+id/btnDate"
+            android:layout_width="56dp"
+            android:layout_height="46dp"
+            android:text="@string/pick"
+            app:layout_constraintBottom_toBottomOf="@+id/etCertDateCreated"
+            app:layout_constraintEnd_toEndOf="@+id/etCertName"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/etCertDateCreated"
+            app:layout_constraintTop_toTopOf="@+id/etCertDateCreated" />
+
+        <android.support.constraint.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="left"
+            app:layout_constraintEnd_toEndOf="@+id/tv_COAGenerator"
+            app:layout_constraintStart_toStartOf="@+id/tv_COAGenerator" />
+    </android.support.constraint.ConstraintLayout>
+
+</android.widget.RelativeLayout>

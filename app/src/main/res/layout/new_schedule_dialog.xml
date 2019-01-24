@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/iv_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/marble_calc"
+        app:srcCompat="@drawable/rod" />
+
+    <EditText
+        android:id="@+id/etScheduleName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/iv_icon"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="12dp"
+        android:hint="@string/enter_a_schedule_name"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        tools:ignore="UnusedAttribute"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp" />
+
+    <EditText
+        android:id="@+id/et_number_thickness"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/etScheduleName"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="14dp"
+        android:hint="@string/desiredthickness"
+        android:importantForAutofill="no"
+        android:inputType="numberDecimal"
+        tools:ignore="UnusedAttribute"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp" />
+
+
+
+</RelativeLayout>
