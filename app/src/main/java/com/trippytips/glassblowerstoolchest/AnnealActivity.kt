@@ -14,12 +14,20 @@ import kotlinx.android.synthetic.main.activity_anneal.*
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import android.widget.ArrayAdapter
+import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
+import com.github.mikephil.charting.components.Legend
+import com.github.mikephil.charting.components.Legend.LegendPosition.BELOW_CHART_CENTER
+import com.github.mikephil.charting.components.LegendEntry
+import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.utils.ColorTemplate
+import java.lang.IllegalStateException
+import java.lang.NullPointerException
 import java.lang.NumberFormatException
 
 
@@ -316,31 +324,67 @@ class AnnealActivity : AppCompatActivity() {
         val dataVals = ArrayList<Entry>()
 
         //Define how the chart will look
+
+        //Chart Description
         val chartDescription: Description = lineChartView.description
+        chartDescription.text = ""
+        chartDescription.setPosition(lineChartView.width*.55F,lineChartView.height*.8F)
+        lineChartView.description = chartDescription
+
+        //Legend
+        var legend: Legend = lineChartView.legend
+        legend.setPosition(BELOW_CHART_CENTER)
+        legend.setForm(Legend.LegendForm.CIRCLE)
+        legend.setTextColor(Color.WHITE)
+        //legend colors are a work in progress
+        //var legendLabels = arrayOf(degrees1, degrees2, degrees3, degrees4, degrees5)
+        //legend.setCustom(ColorTemplate.LIBERTY_COLORS, new String[]{legendLabels})
+
+
+        //No Data Text
         lineChartView.setNoDataText("Please Load a Schedule.")
         lineChartView.setNoDataTextColor(Color.WHITE)
+
+        //Grid & Borders
         lineChartView.setDrawGridBackground(true)
         lineChartView.setDrawBorders(true)
 //      lineChartView.setBorderColor(Color.RED)
         lineChartView.setBorderWidth(1F)
-        chartDescription.text = "Kiln Schedule"
-        lineChartView.description = chartDescription
+
+        //X-Axis (Time)
+        val xAxis = lineChartView.xAxis
+        xAxis.textColor = Color.WHITE
+        //xAxis.setAxisMinimum(0.5F)
+        xAxis.setGranularity(0.5F)
+
+        //Y-Axis (Temp)
+        val yAxisL = lineChartView.getAxis(YAxis.AxisDependency.LEFT)
+        val yAxisR = lineChartView.getAxis(YAxis.AxisDependency.RIGHT)
+        yAxisR.setEnabled(false)
+        yAxisL.setTextColor(Color.WHITE)
+        yAxisL.setAxisMinimum(0F)
+        yAxisL.setAxisMaximum(1700F)
+        yAxisL.setGranularity(500F)
+
+        //Animations
+        //lineChartView.animateXY(3000,3000, Easing.EasingOption.EaseOutBounce, Easing.EasingOption.EaseInOutBounce)
+        lineChartView.animateY(3500, Easing.EasingOption.EaseOutBounce)
 
         //Calculate the coordinates and assign them to vals
         val chartx1 = 0F
         val charty1 = roomtemp
-        val chartx2 = (60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1)
+        val chartx2 = ((60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1))/60F
         val charty2 = degrees1.toFloat()
-        val chartx3 = chartx2 + hold1.toFloat()
+        val chartx3 = chartx2 + (hold1.toFloat()/60F)
         val charty3 = degrees1.toFloat()
-        val chartx4 = chartx3 + (60 / ramp2.toFloat()) * (charty3 - degrees2.toFloat())
+        val chartx4 = chartx3 + (((60 / ramp2.toFloat()) * (charty3 - degrees2.toFloat()))/60F)
         val charty4 = degrees2.toFloat()
-        val chartx5 = chartx4 + hold2.toFloat()
+        val chartx5 = chartx4 + (hold2.toFloat()/60F)
         val charty5 = degrees2.toFloat()
-        val chartx6 = chartx5 + (60 / ramp3.toFloat()) * (charty5 - degrees3.toFloat())
+        val chartx6 = chartx5 + (((60 / ramp3.toFloat()) * (charty5 - degrees3.toFloat()))/60F)
         val charty6 = roomtemp
-        val chartx7 = chartx6
-        val charty7 = charty6
+        val chartx7 = chartx6 //placeholder for now
+        val charty7 = charty6 //placeholder for now
 
         //Add the coordinates to the dataVals ArrayList
         dataVals.add(Entry(chartx1, charty1))
@@ -352,7 +396,7 @@ class AnnealActivity : AppCompatActivity() {
         dataVals.add(Entry(chartx7, charty7))
 
         //Assign dataVals ArrayList and a name to the first line data set.
-        val lineDataSet1 = LineDataSet(dataVals, name)
+        val lineDataSet1 = LineDataSet(dataVals, "Schedule Calculated for $glassthickness\" Thickness")
 
         //Creata an ArrayList for the data sets and add the line data sets.
         val dataSets = ArrayList<ILineDataSet>()
@@ -599,7 +643,7 @@ class AnnealActivity : AppCompatActivity() {
             hold5 = "---"
 
             //Reset the chart
-            lineChartView.clearValues()
+            try{lineChartView.clearValues()}catch(e: NullPointerException){Toast.makeText(context,"Please Create a New Schedule.", Toast.LENGTH_LONG).show()}
 
         }
 
