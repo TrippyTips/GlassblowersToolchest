@@ -82,7 +82,7 @@ class AnnealActivity : AppCompatActivity() {
     val context = this
     var db = ksDataBaseHandler(context)
 
-
+    //Generate the spinner data
     fun generateSpinner() {
         //set 'preset' as spinner
         preset = findViewById(R.id.spin_Schedules)
@@ -164,166 +164,169 @@ class AnnealActivity : AppCompatActivity() {
             }
         }
 
-        fun newschedule(view: View) {
-            val spinner = findViewById<Spinner>(R.id.spin_Schedules)
-            val dialog = AlertDialog.Builder(this)
-            val dialogView = layoutInflater.inflate(R.layout.new_schedule_dialog, null)
-            val etnumber = dialogView.findViewById<EditText>(R.id.et_number_thickness)
-            val etScheduleName = dialogView.findViewById<EditText>(R.id.etScheduleName)
 
-            dialog.setView(dialogView)
-            dialog.setCancelable(false)
-            dialog.setPositiveButton("Specify") { dialogInterface: DialogInterface, i: Int ->
-                val customThicknessString = etnumber.text.toString()
-                glassthickness = etnumber.text.toString().toDouble()
-                thickness = etnumber.text.toString()
-                name = etScheduleName.text.toString()
-                Toast.makeText(
-                    baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
-                            "Name of Schedule is now $name", Toast.LENGTH_LONG
-                ).show()
-                calculateschedule()
-                if (spinnerSize >= db.readData().size) {
-                    id = db.readData().size
-                    //spinner.setSelection(id+1)
-                }
-                saveschedule()
+    //Generate a new Schedule
+    fun newschedule(view: View) {
+        val spinner = findViewById<Spinner>(R.id.spin_Schedules)
+        val dialog = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.new_schedule_dialog, null)
+        val etnumber = dialogView.findViewById<EditText>(R.id.et_number_thickness)
+        val etScheduleName = dialogView.findViewById<EditText>(R.id.etScheduleName)
+
+        dialog.setView(dialogView)
+        dialog.setCancelable(false)
+        dialog.setPositiveButton("Specify") { dialogInterface: DialogInterface, i: Int ->
+            val customThicknessString = etnumber.text.toString()
+            glassthickness = etnumber.text.toString().toDouble()
+            thickness = etnumber.text.toString()
+            name = etScheduleName.text.toString()
+            Toast.makeText(
+                baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
+                        "Name of Schedule is now $name", Toast.LENGTH_LONG
+            ).show()
+            calculateschedule()
+            if (spinnerSize >= db.readData().size) {
+                id = db.readData().size
+                //spinner.setSelection(id+1)
             }
-            val customDialog = dialog.create()
-            customDialog.show()
-            }
-
-
-        //Derive the Data for the Annealing Schedule
-        fun calculateschedule() {
-            //Format Data For Display
-            val df = DecimalFormat("#")
-            df.roundingMode = RoundingMode.HALF_UP
-
-            //Input Variables for Calculations
-            val GlassCOE = 33
-
-            val AnnealCoursness = 250
-
-            //Perform Calculations and assign them to vals
-
-            //Ramp 1 Calculations
-            ramp1 =
-                    if (60 * ((1.08 * 1000) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
-
-                        df.format(60 * ((1.08 * 1000) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
-
-                    } else {
-
-                        "FULL"
-                    }
-
-            //Degrees 1 Calculation
-            degrees1 =
-                    when (GlassCOE) {
-                        33 -> "1058"
-                        90 -> "980"
-                        96 -> "950"
-                        104 -> "970"
-                        else -> "?"
-                    }
-
-            //Hold 1 Calculation
-            hold1 = df.format(30 + (4 * (Math.pow(glassthickness.toDouble(), 2.00))))
-
-            //Ramp 2 Calculation
-            ramp2 =
-                    if (60 * ((.54 * 250) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
-
-                        df.format(60 * ((.54 * 250) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
-
-                    } else {
-
-                        "FULL"
-                    }
-
-            //Degrees 2 Calculation
-            degrees2 =
-                    when (GlassCOE) {
-                        33 -> "950"
-                        90 -> "750"
-                        96 -> "700"
-                        104 -> "680"
-                        else -> "?"
-                    }
-
-            //Hold 2 Calculation
-            hold2 = df.format(15 + (2 * (Math.pow(glassthickness.toDouble(), 2.00))))
-
-            //Ramp 3 Calculation
-            ramp3 =
-                    if (60 * ((.54 * 750) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
-
-                        df.format(60 * ((.54 * 750) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
-
-                    } else {
-
-                        "FULL"
-                    }
-
-            degrees3 = "70"
-            hold3 = "0"
-            ramp4 = "0"
-            degrees4 = "0"
-            hold4 = "0"
-            ramp5 = "0"
-            degrees5 = "0"
-            hold5 = "0"
-
-            schedule.clear()
-
-            schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
-            schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
-
-            schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
-            schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
-
-            schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
-            schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
-
-            schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
-            schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
-
-            rvKilnSchedule.adapter?.notifyDataSetChanged()
-
-            //Generate the Chart
-            generateChart()
+            saveschedule()
         }
+        val customDialog = dialog.create()
+        customDialog.show()
+        }
+
+
+    //Derive the Data for the Annealing Schedule
+    fun calculateschedule() {
+        //Format Data For Display
+        val df = DecimalFormat("#")
+        df.roundingMode = RoundingMode.HALF_UP
+
+        //Input Variables for Calculations
+        val GlassCOE = 33
+
+        val AnnealCoursness = 250
+
+        //Perform Calculations and assign them to vals
+
+        //Ramp 1 Calculations
+        ramp1 =
+                if (60 * ((1.08 * 1000) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+
+                    df.format(60 * ((1.08 * 1000) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+
+                } else {
+
+                    "FULL"
+                }
+
+        //Degrees 1 Calculation
+        degrees1 =
+                when (GlassCOE) {
+                    33 -> "1058"
+                    90 -> "980"
+                    96 -> "950"
+                    104 -> "970"
+                    else -> "?"
+                }
+
+        //Hold 1 Calculation
+        hold1 = df.format(30 + (4 * (Math.pow(glassthickness.toDouble(), 2.00))))
+
+        //Ramp 2 Calculation
+        ramp2 =
+                if (60 * ((.54 * 250) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+
+                    df.format(60 * ((.54 * 250) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+
+                } else {
+
+                    "FULL"
+                }
+
+        //Degrees 2 Calculation
+        degrees2 =
+                when (GlassCOE) {
+                    33 -> "950"
+                    90 -> "750"
+                    96 -> "700"
+                    104 -> "680"
+                    else -> "?"
+                }
+
+        //Hold 2 Calculation
+        hold2 = df.format(15 + (2 * (Math.pow(glassthickness.toDouble(), 2.00))))
+
+        //Ramp 3 Calculation
+        ramp3 =
+                if (60 * ((.54 * 750) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+
+                    df.format(60 * ((.54 * 750) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+
+                } else {
+
+                    "FULL"
+                }
+
+        degrees3 = "70"
+        hold3 = "0"
+        ramp4 = "0"
+        degrees4 = "0"
+        hold4 = "0"
+        ramp5 = "0"
+        degrees5 = "0"
+        hold5 = "0"
+
+        schedule.clear()
+
+        schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
+        schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
+        schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
+
+        schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
+        schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
+        schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
+
+        schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
+        schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
+        schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
+
+        schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
+        schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
+        schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+
+        rvKilnSchedule.adapter?.notifyDataSetChanged()
+
+        //Generate the Chart
+        generateChart()
+    }
+
 
     //Generate a chart to represent the schedule
     fun generateChart() {
-
+        //If the ramps are set to "FULL" change them to "1798"
         try {ramp1.toFloat()} catch (e: NumberFormatException) {ramp1 = "1798"}
         try {ramp2.toFloat()} catch (e: NumberFormatException) {ramp2 = "1798"}
         try {ramp3.toFloat()} catch (e: NumberFormatException) {ramp3 = "1798"}
         try {ramp4.toFloat()} catch (e: NumberFormatException) {ramp4 = "1798"}
         try {ramp5.toFloat()} catch (e: NumberFormatException) {ramp5 = "1798"}
 
-
+        //Assign the chart to lineChartView
         val lineChartView = findViewById<LineChart>(R.id.line_chart)
         val dataVals = ArrayList<Entry>()
 
-
+        //Define how the chart will look
         val chartDescription: Description = lineChartView.description
-
         lineChartView.setNoDataText("Please Load a Schedule.")
         lineChartView.setNoDataTextColor(Color.WHITE)
         lineChartView.setDrawGridBackground(true)
         lineChartView.setDrawBorders(true)
-//        lineChartView.setBorderColor(Color.RED)
+//      lineChartView.setBorderColor(Color.RED)
         lineChartView.setBorderWidth(1F)
         chartDescription.text = "Kiln Schedule"
         lineChartView.description = chartDescription
 
+        //Calculate the coordinates and assign them to vals
         val chartx1 = 0F
         val charty1 = roomtemp
         val chartx2 = (60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1)
@@ -339,6 +342,7 @@ class AnnealActivity : AppCompatActivity() {
         val chartx7 = chartx6
         val charty7 = charty6
 
+        //Add the coordinates to the dataVals ArrayList
         dataVals.add(Entry(chartx1, charty1))
         dataVals.add(Entry(chartx2, charty2))
         dataVals.add(Entry(chartx3, charty3))
@@ -347,22 +351,21 @@ class AnnealActivity : AppCompatActivity() {
         dataVals.add(Entry(chartx6, charty6))
         dataVals.add(Entry(chartx7, charty7))
 
+        //Assign dataVals ArrayList and a name to the first line data set.
         val lineDataSet1 = LineDataSet(dataVals, name)
+
+        //Creata an ArrayList for the data sets and add the line data sets.
         val dataSets = ArrayList<ILineDataSet>()
         dataSets.add(lineDataSet1)
 
+        //create a val that contains all the above data and load it in to the chart.
+        val data = LineData(dataSets)
+        lineChartView.data = data
+
+        //refresh the chart with the newly loaded data
+        lineChartView.invalidate()
 
 
-        if(degrees1.contains("---", true)){
-            dataVals.clear()
-            dataSets.clear()
-            lineChartView.invalidate()
-            lineChartView.clear()
-        }else{
-            val data = LineData(dataSets)
-            lineChartView.data = data
-            lineChartView.invalidate()
-        }
         val xAxisValues = ArrayList<String>()
         xAxisValues.add("xAxisValues0")
         xAxisValues.add("xAxisValues1")
@@ -380,11 +383,79 @@ class AnnealActivity : AppCompatActivity() {
 
     }
 
-        //Save the data to the Database
 
-        fun saveschedule() {
+    //Save the data to the Database
+    fun saveschedule() {
 
-            var dbschedule = Ks(
+        var dbschedule = Ks(
+            id,
+            name,
+            thickness,
+            ramp1,
+            degrees1,
+            hold1,
+            ramp2,
+            degrees2,
+            hold2,
+            ramp3,
+            degrees3,
+            hold3,
+            ramp4,
+            degrees4,
+            hold4,
+            ramp5,
+            degrees5,
+            hold5
+        )
+        //db.deleteData()
+        db.insertData(dbschedule)
+        db.updateData(dbschedule)
+        //id = db.readData().size
+        generateSpinner()
+
+    }
+
+
+    //Delete the selected schedule and reindex the db
+    fun delSchedule(view: View){
+
+        //Load the Database
+        var data = db.readData()
+
+        //A Toast to help debug
+        /*Toast.makeText(this,
+            "DB Size - " + db.readData().size.toString() +
+                "\n Spinner Size - $spinnerSize \n"+
+                "idSelected - $idSelected"+
+                "id - $id",
+            Toast.LENGTH_LONG).show()*/
+
+        //If the selected option isn't the last row in the database,
+        if ((idSelected+1) != (data.size)){
+        //starting from one after idSelected to the end of the database...
+        for (i in (idSelected+1)..(data.size-1)) {
+            //decrease the ID of every row
+            id = data.get(i - 1).id
+            //keeping the rest of the data the same.
+            name = data.get(i).name
+            thickness = data.get(i).thickness
+            ramp1 = data.get(i).step1
+            degrees1 = data.get(i).step2
+            hold1 = data.get(i).step3
+            ramp2 = data.get(i).step4
+            degrees2 = data.get(i).step5
+            hold2 = data.get(i).step6
+            ramp3 = data.get(i).step7
+            degrees3 = data.get(i).step8
+            hold3 = data.get(i).step9
+            ramp4 = data.get(i).step10
+            degrees4 = data.get(i).step11
+            hold4 = data.get(i).step12
+            ramp5 = data.get(i).step13
+            degrees5 = data.get(i).step14
+            hold5 = data.get(i).step15
+            //Update the DB with the new information
+            var editschedule = Ks(
                 id,
                 name,
                 thickness,
@@ -404,262 +475,201 @@ class AnnealActivity : AppCompatActivity() {
                 degrees5,
                 hold5
             )
-            //db.deleteData()
-            db.insertData(dbschedule)
-            db.updateData(dbschedule)
-            //id = db.readData().size
-            generateSpinner()
+            db.updateData(editschedule)
+        }
+
+        }
+        //id = data.get(idSelected).id
+
+        //Delete the last row in the Database.
+        id = data.size - 1
+        var dbschedule = Ks(
+            id,
+            name,
+            thickness,
+            ramp1,
+            degrees1,
+            hold1,
+            ramp2,
+            degrees2,
+            hold2,
+            ramp3,
+            degrees3,
+            hold3,
+            ramp4,
+            degrees4,
+            hold4,
+            ramp5,
+            degrees5,
+            hold5
+        )
+        db.deleteSelected(dbschedule)
+        db.close()
+
+        //set id and idSelected to first position
+        id = 0
+        idSelected = 0
+
+        //Refresh the spinner and load the selected schedule to the Recyclerview
+        generateSpinner()
+        cv_Load.performClick()
+
+    }
+
+
+    //Load a previously saved schedule if one exists
+    fun loadSchedule(view: View) {
+        //Load the Database
+        var data = db.readData()
+
+        //Initialize testdata
+        var testdata = ""
+
+        //If the database isn't empty, load the data from the selected program in to a string.
+        if (data.size != 0) {
+
+            testdata += data.get(idSelected).name + "\n" +
+                    "(ID:" + data.get(idSelected).id.toString() + " in db)\n" +
+                    "Thickness of " + data.get(idSelected).thickness + " Inches\n" +
+                    "RA1  " + data.get(idSelected).step1 + "°/Hour\n" +
+                    "°F1  " + data.get(idSelected).step2 + "°\n" +
+                    "HLD1 " + data.get(idSelected).step3 + " Minutes\n" +
+                    "RA2  " + data.get(idSelected).step4 + "°/Hour\n" +
+                    "°F2  " + data.get(idSelected).step5 + "°\n" +
+                    "HLD2 " + data.get(idSelected).step6 + " Minutes\n" +
+                    "RA3  " + data.get(idSelected).step7 + "°/Hour\n" +
+                    "°F3  " + data.get(idSelected).step8 + "°\n" +
+                    "HLD3 " + data.get(idSelected).step9 + " Minutes\n" +
+                    "RA4  " + data.get(idSelected).step10 + "°/Hour\n" +
+                    "°F4  " + data.get(idSelected).step11 + "°\n" +
+                    "HLD4 " + data.get(idSelected).step12 + " Minutes\n" +
+                    "RA5  " + data.get(idSelected).step13 + "°/Hour\n" +
+                    "°F5  " + data.get(idSelected).step14 + "°\n" +
+                    "HLD5 " + data.get(idSelected).step15 + " Minutes\n" +
+                    "Generated using \n" +
+                    "GlassBlower's Toolchest App\n" +
+                    "by Bert Langan\n\n"
+
+            //Show a toast of which information was loaded
+            //Toast.makeText(this, testdata, Toast.LENGTH_SHORT).show()
+
+            //Load the variables with the correct information from the database
+            id = data.get(idSelected).id
+            name = data.get(idSelected).name
+            thickness = data.get(idSelected).thickness
+            glassthickness = data.get(idSelected).thickness.toDouble()
+            ramp1 = data.get(idSelected).step1
+            degrees1 = data.get(idSelected).step2
+            hold1 = data.get(idSelected).step3
+            ramp2 = data.get(idSelected).step4
+            degrees2 = data.get(idSelected).step5
+            hold2 = data.get(idSelected).step6
+            ramp3 = data.get(idSelected).step7
+            degrees3 = data.get(idSelected).step8
+            hold3 = data.get(idSelected).step9
+            ramp4 = data.get(idSelected).step10
+            degrees4 = data.get(idSelected).step11
+            hold4 = data.get(idSelected).step12
+            ramp5 = data.get(idSelected).step13
+            degrees5 = data.get(idSelected).step14
+            hold5 = data.get(idSelected).step15
+
+            generateChart()
+
+        } else {
+            //Assign the chart to a val
+            val lineChartView = findViewById<LineChart>(R.id.line_chart)
+
+            //If the database is empty, load dashes in to the variables.
+            name = "---"
+            ramp1 = "---"
+            degrees1 = "---"
+            hold1 = "---"
+            ramp2 = "---"
+            degrees2 = "---"
+            hold2 = "---"
+            ramp3 = "---"
+            degrees3 = "---"
+            hold3 = "---"
+            ramp4 = "---"
+            degrees4 = "---"
+            hold4 = "---"
+            ramp5 = "---"
+            degrees5 = "---"
+            hold5 = "---"
+
+            //Reset the chart
+            lineChartView.clearValues()
 
         }
 
+            //Clear the recyclerview
+            schedule.clear()
 
-        fun delSchedule(view: View){
+            //Add the new information in to the recyclerview
+            schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
+            schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
 
-            //Load the Database
-            var data = db.readData()
+            schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
+            schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
+
+            schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
+            schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
+
+            schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
+            schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+
+            //tell the recyclerview adapter that the data has changed and needs to be refreshed.
+            rvKilnSchedule.adapter?.notifyDataSetChanged()
+
+            //Close the database
+            db.close()
+                       }
+
+
+    //Share the currently selected schedule
+    fun shareSchedule(view: View) {
+
+        var data = db.readData()
+        var shareData = ""
+        for (i in 0..(data.size - 1)) {
+            shareData = "Kiln Schedule for $thickness in. work\n" +
+                    "RA1 \t" + data.get(i).step1 + "°/Hour\n" +
+                    "°F1 \t\t" + data.get(i).step2 + "°\n" +
+                    "HLD1\t" + data.get(i).step3 + " Minutes\n" +
+                    "RA2 \t" + data.get(i).step4 + "°/Hour\n" +
+                    "°F2 \t\t" + data.get(i).step5 + "°\n" +
+                    "HLD2\t" + data.get(i).step6 + " Minutes\n" +
+                    "RA3 \t" + data.get(i).step7 + "°/Hour\n" +
+                    "°F3 \t\t" + data.get(i).step8 + "°\n" +
+                    "HLD3\t" + data.get(i).step9 + " Minutes\n" +
+                    "RA4 \t" + data.get(i).step10 + "°/Hour\n" +
+                    "°F4 \t\t" + data.get(i).step11 + "°\n" +
+                    "HLD4\t" + data.get(i).step12 + " Minutes\n" +
+                    "RA5 \t" + data.get(i).step13 + "°/Hour\n" +
+                    "°F5 \t\t" + data.get(i).step14 + "°\n" +
+                    "HLD5\t" + data.get(i).step15 + " Minutes\n\n" +
+                    "Generated using \n" +
+                    "GlassBlower's Toolchest App\n" +
+                    "by Bert Langan\n\n"
 
             //A Toast to help debug
-            /*Toast.makeText(this,
-                "DB Size - " + db.readData().size.toString() +
-                    "\n Spinner Size - $spinnerSize \n"+
-                    "idSelected - $idSelected"+
-                    "id - $id",
-                Toast.LENGTH_LONG).show()*/
-
-            //If the selected option isn't the last row in the database,
-            if ((idSelected+1) != (data.size)){
-            //starting from one after idSelected to the end of the database...
-            for (i in (idSelected+1)..(data.size-1)) {
-                //decrease the ID of every row
-                id = data.get(i - 1).id
-                //keeping the rest of the data the same.
-                name = data.get(i).name
-                thickness = data.get(i).thickness
-                ramp1 = data.get(i).step1
-                degrees1 = data.get(i).step2
-                hold1 = data.get(i).step3
-                ramp2 = data.get(i).step4
-                degrees2 = data.get(i).step5
-                hold2 = data.get(i).step6
-                ramp3 = data.get(i).step7
-                degrees3 = data.get(i).step8
-                hold3 = data.get(i).step9
-                ramp4 = data.get(i).step10
-                degrees4 = data.get(i).step11
-                hold4 = data.get(i).step12
-                ramp5 = data.get(i).step13
-                degrees5 = data.get(i).step14
-                hold5 = data.get(i).step15
-                //Update the DB with the new information
-                var editschedule = Ks(
-                    id,
-                    name,
-                    thickness,
-                    ramp1,
-                    degrees1,
-                    hold1,
-                    ramp2,
-                    degrees2,
-                    hold2,
-                    ramp3,
-                    degrees3,
-                    hold3,
-                    ramp4,
-                    degrees4,
-                    hold4,
-                    ramp5,
-                    degrees5,
-                    hold5
-                )
-                db.updateData(editschedule)
-            }
-
-            }
-            //id = data.get(idSelected).id
-
-            //Delete the last row in the Database.
-            id = data.size - 1
-            var dbschedule = Ks(
-                id,
-                name,
-                thickness,
-                ramp1,
-                degrees1,
-                hold1,
-                ramp2,
-                degrees2,
-                hold2,
-                ramp3,
-                degrees3,
-                hold3,
-                ramp4,
-                degrees4,
-                hold4,
-                ramp5,
-                degrees5,
-                hold5
-            )
-            db.deleteSelected(dbschedule)
-            db.close()
-
-            //set id and idSelected to first position
-            id = 0
-            idSelected = 0
-
-            //Refresh the spinner and load the selected schedule to the Recyclerview
-            generateSpinner()
-            cv_Load.performClick()
-
+            //Toast.makeText(this, shareData, Toast.LENGTH_SHORT).show()
         }
 
+        val intent = Intent()
+        intent.action = Intent.ACTION_SEND
+        intent.putExtra(Intent.EXTRA_TEXT, shareData)
+        intent.type = "text/plain"
 
-        fun loadSchedule(view: View) {
-            //Load the Database
-            var data = db.readData()
-
-            //Initialize testdata
-            var testdata = ""
-
-            //If the database isn't empty, load the data from the selected program in to a string.
-            if (data.size != 0) {
-
-                testdata += data.get(idSelected).name + "\n" +
-                        "(ID:" + data.get(idSelected).id.toString() + " in db)\n" +
-                        "Thickness of " + data.get(idSelected).thickness + " Inches\n" +
-                        "RA1  " + data.get(idSelected).step1 + "°/Hour\n" +
-                        "°F1  " + data.get(idSelected).step2 + "°\n" +
-                        "HLD1 " + data.get(idSelected).step3 + " Minutes\n" +
-                        "RA2  " + data.get(idSelected).step4 + "°/Hour\n" +
-                        "°F2  " + data.get(idSelected).step5 + "°\n" +
-                        "HLD2 " + data.get(idSelected).step6 + " Minutes\n" +
-                        "RA3  " + data.get(idSelected).step7 + "°/Hour\n" +
-                        "°F3  " + data.get(idSelected).step8 + "°\n" +
-                        "HLD3 " + data.get(idSelected).step9 + " Minutes\n" +
-                        "RA4  " + data.get(idSelected).step10 + "°/Hour\n" +
-                        "°F4  " + data.get(idSelected).step11 + "°\n" +
-                        "HLD4 " + data.get(idSelected).step12 + " Minutes\n" +
-                        "RA5  " + data.get(idSelected).step13 + "°/Hour\n" +
-                        "°F5  " + data.get(idSelected).step14 + "°\n" +
-                        "HLD5 " + data.get(idSelected).step15 + " Minutes\n" +
-                        "Generated using \n" +
-                        "GlassBlower's Toolchest App\n" +
-                        "by Bert Langan\n\n"
-
-                //Show a toast of which information was loaded
-                //Toast.makeText(this, testdata, Toast.LENGTH_SHORT).show()
-
-                //Load the variables with the correct information from the database
-                id = data.get(idSelected).id
-                name = data.get(idSelected).name
-                thickness = data.get(idSelected).thickness
-                glassthickness = data.get(idSelected).thickness.toDouble()
-                ramp1 = data.get(idSelected).step1
-                degrees1 = data.get(idSelected).step2
-                hold1 = data.get(idSelected).step3
-                ramp2 = data.get(idSelected).step4
-                degrees2 = data.get(idSelected).step5
-                hold2 = data.get(idSelected).step6
-                ramp3 = data.get(idSelected).step7
-                degrees3 = data.get(idSelected).step8
-                hold3 = data.get(idSelected).step9
-                ramp4 = data.get(idSelected).step10
-                degrees4 = data.get(idSelected).step11
-                hold4 = data.get(idSelected).step12
-                ramp5 = data.get(idSelected).step13
-                degrees5 = data.get(idSelected).step14
-                hold5 = data.get(idSelected).step15
-
-                generateChart()
-
-            } else {
-                val lineChartView = findViewById<LineChart>(R.id.line_chart)
-                //If the database is empty, load dashes in to the variables.
-                name = "---"
-                ramp1 = "---"
-                degrees1 = "---"
-                hold1 = "---"
-                ramp2 = "---"
-                degrees2 = "---"
-                hold2 = "---"
-                ramp3 = "---"
-                degrees3 = "---"
-                hold3 = "---"
-                ramp4 = "---"
-                degrees4 = "---"
-                hold4 = "---"
-                ramp5 = "---"
-                degrees5 = "---"
-                hold5 = "---"
-
-                lineChartView.clearValues()
-
-            }
-
-                //Clear the recyclerview
-                schedule.clear()
-
-                //Add the new information in to the recyclerview
-                schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
-                schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
-                schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
-
-                schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
-                schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
-                schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
-
-                schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
-                schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
-                schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
-
-                schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
-                schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
-                schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
-
-                //tell the recyclerview adapter that the data has changed and needs to be refreshed.
-                rvKilnSchedule.adapter?.notifyDataSetChanged()
-
-                //Close the database
-                db.close()
-                           }
+        startActivity(Intent.createChooser(intent, "Where would you like to share?"))
 
 
-        fun shareSchedule(view: View) {
-
-            var data = db.readData()
-            var shareData = ""
-            for (i in 0..(data.size - 1)) {
-                shareData = "Kiln Schedule for $thickness in. work\n" +
-                        "RA1 \t" + data.get(i).step1 + "°/Hour\n" +
-                        "°F1 \t\t" + data.get(i).step2 + "°\n" +
-                        "HLD1\t" + data.get(i).step3 + " Minutes\n" +
-                        "RA2 \t" + data.get(i).step4 + "°/Hour\n" +
-                        "°F2 \t\t" + data.get(i).step5 + "°\n" +
-                        "HLD2\t" + data.get(i).step6 + " Minutes\n" +
-                        "RA3 \t" + data.get(i).step7 + "°/Hour\n" +
-                        "°F3 \t\t" + data.get(i).step8 + "°\n" +
-                        "HLD3\t" + data.get(i).step9 + " Minutes\n" +
-                        "RA4 \t" + data.get(i).step10 + "°/Hour\n" +
-                        "°F4 \t\t" + data.get(i).step11 + "°\n" +
-                        "HLD4\t" + data.get(i).step12 + " Minutes\n" +
-                        "RA5 \t" + data.get(i).step13 + "°/Hour\n" +
-                        "°F5 \t\t" + data.get(i).step14 + "°\n" +
-                        "HLD5\t" + data.get(i).step15 + " Minutes\n\n" +
-                        "Generated using \n" +
-                        "GlassBlower's Toolchest App\n" +
-                        "by Bert Langan\n\n"
-
-                //A Toast to help debug
-                //Toast.makeText(this, shareData, Toast.LENGTH_SHORT).show()
-            }
-
-            val intent = Intent()
-            intent.action = Intent.ACTION_SEND
-            intent.putExtra(Intent.EXTRA_TEXT, shareData)
-            intent.type = "text/plain"
-
-            startActivity(Intent.createChooser(intent, "Where would you like to share?"))
-
-
-        }
     }
+
+}
 
