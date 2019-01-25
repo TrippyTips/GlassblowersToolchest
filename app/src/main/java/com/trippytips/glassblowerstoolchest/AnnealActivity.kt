@@ -60,7 +60,7 @@ class AnnealActivity : AppCompatActivity() {
 
 
         //Show a toast explaining future plans to testers :)
-        Toast.makeText(this, "The load button is now selected automatically when you pick from the list.\nIt will be something else eventually.\nIgnore it for now :)",Toast.LENGTH_LONG).show()
+        //Toast.makeText(this, "The load button is now selected automatically when you pick from the list.\nIt will be something else eventually.\nIgnore it for now :)",Toast.LENGTH_LONG).show()
 
 
         //Set up the spinner
