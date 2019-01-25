@@ -572,7 +572,7 @@ class AnnealActivity : AppCompatActivity() {
                 generateChart()
 
             } else {
-
+                val lineChartView = findViewById<LineChart>(R.id.line_chart)
                 //If the database is empty, load dashes in to the variables.
                 name = "---"
                 ramp1 = "---"
@@ -591,7 +591,8 @@ class AnnealActivity : AppCompatActivity() {
                 degrees5 = "---"
                 hold5 = "---"
 
-                generateChart()
+                lineChartView.clearValues()
+
             }
 
                 //Clear the recyclerview
