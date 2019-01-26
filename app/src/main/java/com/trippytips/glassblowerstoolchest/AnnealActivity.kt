@@ -1,9 +1,12 @@
 package com.trippytips.glassblowerstoolchest
 
-import android.content.DialogInterface
-import android.content.Intent
+import android.content.*
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -26,6 +29,8 @@ import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
 import com.github.mikephil.charting.utils.ColorTemplate
+import java.io.File
+import java.io.FileOutputStream
 import java.lang.IllegalStateException
 import java.lang.NullPointerException
 import java.lang.NumberFormatException
@@ -678,6 +683,8 @@ class AnnealActivity : AppCompatActivity() {
     //Share the currently selected schedule
     fun shareSchedule(view: View) {
 
+
+
         var data = db.readData()
         var shareData = ""
         for (i in 0..(data.size - 1)) {
@@ -703,15 +710,58 @@ class AnnealActivity : AppCompatActivity() {
 
             //A Toast to help debug
             //Toast.makeText(this, shareData, Toast.LENGTH_SHORT).show()
+
+            //Share the Schedule & a bitmap of the chart
+
+        try {
+            //Save the Bitmap to ExternalCacheDir
+            val lc = findViewById<LineChart>(R.id.line_chart)
+            val bitmap = lc.chartBitmap
+            val file = File(this.getExternalCacheDir(),"$name.png")
+            val fOut = FileOutputStream(file)
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fOut)
+            fOut.flush()
+            fOut.close()
+            file.setReadable(true, false)
+            val apkURI = FileProvider.getUriForFile(context, context.applicationContext.packageName + ".provider", file)
+
+            //Set up the intent
+            val intent = Intent()
+            intent.action = Intent.ACTION_SEND
+            //intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+
+            //Add the Schedule Text
+            //intent.type = "text/plain"
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                var myClipboard: ClipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                var myClip: ClipData? = ClipData.newPlainText("Schedule", shareData)
+                myClipboard.primaryClip = myClip
+
+                Toast.makeText(context,"Schedule Copied to Clipboard",Toast.LENGTH_LONG).show()
+            }
+
+            intent.putExtra(Intent.EXTRA_TEXT, shareData)
+            intent.putExtra(Intent.EXTRA_STREAM, apkURI)
+            intent.type = "image/png"
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+
+            //Share the Intent
+            startActivity(Intent.createChooser(intent, "Share schedule via"))
+
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
 
+        }
+/*
         val intent = Intent()
         intent.action = Intent.ACTION_SEND
         intent.putExtra(Intent.EXTRA_TEXT, shareData)
         intent.type = "text/plain"
 
         startActivity(Intent.createChooser(intent, "Where would you like to share?"))
-
+*/
 
     }
 
