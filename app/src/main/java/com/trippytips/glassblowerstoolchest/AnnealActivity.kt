@@ -41,6 +41,7 @@ class AnnealActivity : AppCompatActivity() {
     lateinit var preset: Spinner
     val schedule = ArrayList<rvKilnScheduleStep>()
     private var glassthickness = 0.00
+    var importThickness = 0.00
     var thickness = glassthickness.toString()
     var id = 0
     var idSelected = 0
@@ -75,6 +76,8 @@ class AnnealActivity : AppCompatActivity() {
         //Show a toast explaining future plans to testers :)
         //Toast.makeText(this, "The load button is now selected automatically when you pick from the list.\nIt will be something else eventually.\nIgnore it for now :)",Toast.LENGTH_LONG).show()
 
+        //Import the schedule from Marble Calculator if applicable
+        importSchedule()
 
         //Set up the spinner
         generateSpinner()
@@ -179,6 +182,23 @@ class AnnealActivity : AppCompatActivity() {
 
 
     //Generate a new Schedule
+
+    fun importSchedule(){
+        try{
+            val bundle: Bundle? = intent.extras
+            @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+            importThickness = bundle!!.getString("GlassThickness").toDouble()
+            thickness = importThickness.toString()
+            name = "$thickness Inch Marble"
+            calculateschedule()
+            id = db.readData().size
+            saveschedule()
+        }catch(e:Exception){
+            e.printStackTrace()
+            Toast.makeText(context, "Error in importSchedule function:\n$e", Toast.LENGTH_LONG).show()
+        }
+    }
+
     fun newschedule(view: View) {
         val spinner = findViewById<Spinner>(R.id.spin_Schedules)
         val dialog = AlertDialog.Builder(this)

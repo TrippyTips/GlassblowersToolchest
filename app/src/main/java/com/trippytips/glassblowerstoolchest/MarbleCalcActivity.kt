@@ -33,6 +33,7 @@ class MarbleCalcActivity : AppCompatActivity() {
 
     lateinit var rodslider : SeekBar
     lateinit var rodvalue : TextView
+    var thickness = ""
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,16 +47,11 @@ class MarbleCalcActivity : AppCompatActivity() {
         //Open Anneal-o-Matic
         btn_Anneal.setOnClickListener {
             val intent = Intent(this, AnnealActivity::class.java)
+            intent.putExtra("GlassThickness", thickness)
             try{
                 startActivity(intent)
-                throw FeatureException("Testing Testing, 1...2...3")
-
-            } catch(e:Exception) {
+                } catch(e:Exception) {
                 e.printStackTrace()
-                //   Toast.makeText(this, "This feature has not yet been implemented.",
-                //       Toast.LENGTH_LONG).show()
-                Toast.makeText(this, "THIS FEATURE HAS NOT YET BEEN IMPLEMENTED: \n\n" + e.toString(),
-                    Toast.LENGTH_LONG).show()
             }
 
         }
@@ -195,6 +191,7 @@ class MarbleCalcActivity : AppCompatActivity() {
 
         //Make string outputs of calculations
         val marblesize = (sb_MarbleSlider.progress / 10.000).toString()
+        thickness = marblesize
         val rodsize =  rodSizeList[sb_RodSlider.progress].toString()
         val strLengthNeededFeet = df.format(lengthNeededFeet).toString()
         val strLengthNeededInches = df.format(lengthNeededFeet * 12).toString()
