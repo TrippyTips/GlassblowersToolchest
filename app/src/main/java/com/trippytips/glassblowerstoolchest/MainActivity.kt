@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     fun openSettings(view: View) {
         val intent = Intent(this, SettingsActivity::class.java)
         try{
-            //startActivity(intent)
+            startActivity(intent)
             throw FeatureException("Testing Testing, 1...2...3")
 
         } catch(e:Exception) {

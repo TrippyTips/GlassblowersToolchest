@@ -3,7 +3,6 @@ package com.trippytips.glassblowerstoolchest
 import android.content.*
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.content.FileProvider
@@ -13,27 +12,21 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.*
-import kotlinx.android.synthetic.main.activity_anneal.*
-import java.math.RoundingMode
-import java.text.DecimalFormat
-import android.widget.ArrayAdapter
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.Legend.LegendPosition.BELOW_CHART_CENTER
-import com.github.mikephil.charting.components.LegendEntry
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
-import com.github.mikephil.charting.utils.ColorTemplate
+import kotlinx.android.synthetic.main.activity_anneal.*
 import java.io.File
 import java.io.FileOutputStream
-import java.lang.IllegalStateException
-import java.lang.NullPointerException
-import java.lang.NumberFormatException
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 
 class AnnealActivity : AppCompatActivity() {
@@ -189,13 +182,15 @@ class AnnealActivity : AppCompatActivity() {
             @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
             importThickness = bundle!!.getString("GlassThickness").toDouble()
             thickness = importThickness.toString()
+            glassthickness = importThickness
             name = "$thickness Inch Marble"
             calculateschedule()
             id = db.readData().size
             saveschedule()
+            Toast.makeText(context, "Successfully Imported Size From Marble Calculator", Toast.LENGTH_LONG).show()
         }catch(e:Exception){
             e.printStackTrace()
-            Toast.makeText(context, "Error in importSchedule function:\n$e", Toast.LENGTH_LONG).show()
+
         }
     }
 
@@ -229,24 +224,31 @@ class AnnealActivity : AppCompatActivity() {
         }
 
 
+
     //Derive the Data for the Annealing Schedule
     fun calculateschedule() {
+        val gtpreference = GTCPreference(this)
+        //gtpreference.setCOE(33)
+        val glassCOE = gtpreference.getCOE()
+
+        //val glassCOE = 33
         //Format Data For Display
         val df = DecimalFormat("#")
         df.roundingMode = RoundingMode.HALF_UP
 
-        //Input Variables for Calculations
-        val GlassCOE = 33
 
+        //Input Variables for Calculations
+
+        //val glassCOE = 33
         val AnnealCoursness = 250
 
         //Perform Calculations and assign them to vals
 
         //Ramp 1 Calculations
         ramp1 =
-                if (60 * ((1.08 * 1000) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+                if (60 * ((1.08 * 1000) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
 
-                    df.format(60 * ((1.08 * 1000) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+                    df.format(60 * ((1.08 * 1000) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
 
                 } else {
 
@@ -255,7 +257,7 @@ class AnnealActivity : AppCompatActivity() {
 
         //Degrees 1 Calculation
         degrees1 =
-                when (GlassCOE) {
+                when (glassCOE) {
                     33 -> "1058"
                     90 -> "980"
                     96 -> "950"
@@ -268,9 +270,9 @@ class AnnealActivity : AppCompatActivity() {
 
         //Ramp 2 Calculation
         ramp2 =
-                if (60 * ((.54 * 250) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+                if (60 * ((.54 * 250) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
 
-                    df.format(60 * ((.54 * 250) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+                    df.format(60 * ((.54 * 250) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
 
                 } else {
 
@@ -279,7 +281,7 @@ class AnnealActivity : AppCompatActivity() {
 
         //Degrees 2 Calculation
         degrees2 =
-                when (GlassCOE) {
+                when (glassCOE) {
                     33 -> "950"
                     90 -> "750"
                     96 -> "700"
@@ -292,9 +294,9 @@ class AnnealActivity : AppCompatActivity() {
 
         //Ramp 3 Calculation
         ramp3 =
-                if (60 * ((.54 * 750) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+                if (60 * ((.54 * 750) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
 
-                    df.format(60 * ((.54 * 750) / ((GlassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+                    df.format(60 * ((.54 * 750) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
 
                 } else {
 
@@ -668,7 +670,9 @@ class AnnealActivity : AppCompatActivity() {
             hold5 = "---"
 
             //Reset the chart
-            try{lineChartView.clearValues()}catch(e: NullPointerException){Toast.makeText(context,"Please Create a New Schedule.", Toast.LENGTH_LONG).show()}
+            try{
+                lineChartView.clearValues()
+            }catch(e: NullPointerException){Toast.makeText(context,"Please Create a New Schedule.", Toast.LENGTH_LONG).show()}
 
         }
 

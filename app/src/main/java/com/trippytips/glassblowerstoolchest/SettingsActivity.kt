@@ -63,8 +63,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
     override fun isValidFragment(fragmentName: String): Boolean {
         return PreferenceFragment::class.java.name == fragmentName
                 || GeneralPreferenceFragment::class.java.name == fragmentName
-                || DataSyncPreferenceFragment::class.java.name == fragmentName
-                || NotificationPreferenceFragment::class.java.name == fragmentName
+//                || DataSyncPreferenceFragment::class.java.name == fragmentName
+//                || NotificationPreferenceFragment::class.java.name == fragmentName
     }
 
     /**
@@ -82,8 +82,8 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            bindPreferenceSummaryToValue(findPreference("example_text"))
-            bindPreferenceSummaryToValue(findPreference("example_list"))
+            bindPreferenceSummaryToValue(findPreference("artist"))
+            bindPreferenceSummaryToValue(findPreference("coe"))
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -100,7 +100,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
      * This fragment shows notification preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+ /*   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class NotificationPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -122,13 +122,13 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             }
             return super.onOptionsItemSelected(item)
         }
-    }
+    } */
 
     /**
      * This fragment shows data and sync preferences only. It is used when the
      * activity is showing a two-pane settings UI.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+ /*   @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     class DataSyncPreferenceFragment : PreferenceFragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -150,7 +150,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             }
             return super.onOptionsItemSelected(item)
         }
-    }
+    } */
 
     companion object {
 
