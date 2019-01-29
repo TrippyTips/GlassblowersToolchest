@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -56,7 +57,7 @@ class AnnealActivity : AppCompatActivity() {
     var hold5: String = "-"
     var spinnerSize = 0
     var roomtemp:Float = 70F
-
+    var glassCOE = 33
 
 
 
@@ -65,6 +66,10 @@ class AnnealActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_anneal)
 
+        //Get the COE from SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        val COE = prefs.getString("pref_coe","33")
+        glassCOE = COE.toInt()
 
         //Show a toast explaining future plans to testers :)
         //Toast.makeText(this, "The load button is now selected automatically when you pick from the list.\nIt will be something else eventually.\nIgnore it for now :)",Toast.LENGTH_LONG).show()
@@ -183,7 +188,7 @@ class AnnealActivity : AppCompatActivity() {
             importThickness = bundle!!.getString("GlassThickness").toDouble()
             thickness = importThickness.toString()
             glassthickness = importThickness
-            name = "$thickness Inch Marble"
+            name = "$thickness Inch Marble [COE $glassCOE]"
             calculateschedule()
             id = db.readData().size
             saveschedule()
@@ -227,11 +232,7 @@ class AnnealActivity : AppCompatActivity() {
 
     //Derive the Data for the Annealing Schedule
     fun calculateschedule() {
-        val gtpreference = GTCPreference(this)
-        //gtpreference.setCOE(33)
-        val glassCOE = gtpreference.getCOE()
 
-        //val glassCOE = 33
         //Format Data For Display
         val df = DecimalFormat("#")
         df.roundingMode = RoundingMode.HALF_UP
@@ -423,7 +424,7 @@ class AnnealActivity : AppCompatActivity() {
         dataVals.add(Entry(chartx7, charty7))
 
         //Assign dataVals ArrayList and a name to the first line data set.
-        val lineDataSet1 = LineDataSet(dataVals, "Schedule Calculated for $glassthickness\" Thickness")
+        val lineDataSet1 = LineDataSet(dataVals, "Schedule Calculated for $glassthickness\" Thickness [COE $glassCOE]")
 
         //Creata an ArrayList for the data sets and add the line data sets.
         val dataSets = ArrayList<ILineDataSet>()
@@ -476,7 +477,8 @@ class AnnealActivity : AppCompatActivity() {
             hold4,
             ramp5,
             degrees5,
-            hold5
+            hold5,
+            glassCOE
         )
         //db.deleteData()
         db.insertData(dbschedule)
@@ -525,6 +527,7 @@ class AnnealActivity : AppCompatActivity() {
             ramp5 = data.get(i).step13
             degrees5 = data.get(i).step14
             hold5 = data.get(i).step15
+            glassCOE = data.get(i).coe
             //Update the DB with the new information
             var editschedule = Ks(
                 id,
@@ -544,7 +547,8 @@ class AnnealActivity : AppCompatActivity() {
                 hold4,
                 ramp5,
                 degrees5,
-                hold5
+                hold5,
+                glassCOE
             )
             db.updateData(editschedule)
         }
@@ -572,7 +576,8 @@ class AnnealActivity : AppCompatActivity() {
             hold4,
             ramp5,
             degrees5,
-            hold5
+            hold5,
+            glassCOE
         )
         db.deleteSelected(dbschedule)
         db.close()
@@ -602,6 +607,7 @@ class AnnealActivity : AppCompatActivity() {
             testdata += data.get(idSelected).name + "\n" +
                     "(ID:" + data.get(idSelected).id.toString() + " in db)\n" +
                     "Thickness of " + data.get(idSelected).thickness + " Inches\n" +
+                    "COE of " + data.get(idSelected).coe +
                     "RA1  " + data.get(idSelected).step1 + "°/Hour\n" +
                     "°F1  " + data.get(idSelected).step2 + "°\n" +
                     "HLD1 " + data.get(idSelected).step3 + " Minutes\n" +
@@ -644,7 +650,7 @@ class AnnealActivity : AppCompatActivity() {
             ramp5 = data.get(idSelected).step13
             degrees5 = data.get(idSelected).step14
             hold5 = data.get(idSelected).step15
-
+            glassCOE = data.get(idSelected).coe
             generateChart()
 
         } else {
@@ -713,6 +719,7 @@ class AnnealActivity : AppCompatActivity() {
         var shareData = ""
         for (i in 0..(data.size - 1)) {
             shareData = "Kiln Schedule for $thickness in. work\n" +
+                    "COE \t" + data.get(i).coe +
                     "RA1 \t" + data.get(i).step1 + "°/Hour\n" +
                     "°F1 \t\t" + data.get(i).step2 + "°\n" +
                     "HLD1\t" + data.get(i).step3 + " Minutes\n" +

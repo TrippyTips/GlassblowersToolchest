@@ -26,6 +26,7 @@ val COL_STEP13 = "ramp5"
 val COL_STEP14 = "degrees5"
 val COL_STEP15 = "hold5"
 val COL_ID = "id"
+val COL_COE = "coe"
 
 
 class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,null,1) {
@@ -34,7 +35,7 @@ class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABA
 
 
         val createTable =
-            """CREATE TABLE $TABLE_NAME($COL_ID INTEGER PRIMARY KEY AUTOINCREMENT,$COL_NAME VARCHAR(25),$COL_THICKNESS VARCHAR(25),$COL_STEP1 VARCHAR(25),$COL_STEP2 VARCHAR(25),$COL_STEP3 VARCHAR(25),$COL_STEP4 VARCHAR(25),$COL_STEP5 VARCHAR(25),$COL_STEP6 VARCHAR(25),$COL_STEP7 VARCHAR(25),$COL_STEP8 VARCHAR(25),$COL_STEP9 VARCHAR(25),$COL_STEP10 VARCHAR(25),$COL_STEP11 VARCHAR(25),$COL_STEP12 VARCHAR(25),$COL_STEP13 VARCHAR(25),$COL_STEP14 VARCHAR(25),$COL_STEP15 VARCHAR(25))""";
+            """CREATE TABLE $TABLE_NAME($COL_ID INTEGER PRIMARY KEY AUTOINCREMENT,$COL_NAME VARCHAR(25),$COL_THICKNESS VARCHAR(25),$COL_STEP1 VARCHAR(25),$COL_STEP2 VARCHAR(25),$COL_STEP3 VARCHAR(25),$COL_STEP4 VARCHAR(25),$COL_STEP5 VARCHAR(25),$COL_STEP6 VARCHAR(25),$COL_STEP7 VARCHAR(25),$COL_STEP8 VARCHAR(25),$COL_STEP9 VARCHAR(25),$COL_STEP10 VARCHAR(25),$COL_STEP11 VARCHAR(25),$COL_STEP12 VARCHAR(25),$COL_STEP13 VARCHAR(25),$COL_STEP14 VARCHAR(25),$COL_STEP15 VARCHAR(25),$COL_COE VARCHAR(5))""";
 
         db?.execSQL(createTable)
 
@@ -65,6 +66,7 @@ class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABA
         cv.put(COL_STEP13,ks.step13)
         cv.put(COL_STEP14,ks.step14)
         cv.put(COL_STEP15,ks.step15)
+        cv.put(COL_COE,ks.coe)
 
         var result = db.insert(TABLE_NAME,null,cv)
         if(result == (-1).toLong())
@@ -95,6 +97,7 @@ class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABA
         cv.put(COL_STEP13,ks.step13)
         cv.put(COL_STEP14,ks.step14)
         cv.put(COL_STEP15,ks.step15)
+        cv.put(COL_COE,ks.coe)
         var result = db.update(TABLE_NAME, cv, "ID = ?", arrayOf(ks.id.toString()))
 
         if(result > 0)
@@ -185,6 +188,7 @@ class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABA
                 ks.step13 = result.getString(result.getColumnIndex(COL_STEP13))
                 ks.step14 = result.getString(result.getColumnIndex(COL_STEP14))
                 ks.step15 = result.getString(result.getColumnIndex(COL_STEP15))
+                ks.coe = result.getString(result.getColumnIndex(COL_COE)).toInt()
                 list.add(ks)
             }while (result.moveToNext())
         }

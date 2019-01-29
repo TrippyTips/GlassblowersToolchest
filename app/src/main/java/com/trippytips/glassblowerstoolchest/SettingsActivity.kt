@@ -83,7 +83,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             // updated to reflect the new value, per the Android Design
             // guidelines.
             bindPreferenceSummaryToValue(findPreference("artist"))
-            bindPreferenceSummaryToValue(findPreference("coe"))
+            bindPreferenceSummaryToValue(findPreference("pref_coe"))
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -175,7 +175,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                         null
                 )
 
-            } else if (preference is RingtonePreference) {
+/*            } else if (preference is RingtonePreference) {
                 // For ringtone preferences, look up the correct display value
                 // using RingtoneManager.
                 if (TextUtils.isEmpty(stringValue)) {
@@ -197,7 +197,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
                         preference.setSummary(name)
                     }
                 }
-
+*/
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.

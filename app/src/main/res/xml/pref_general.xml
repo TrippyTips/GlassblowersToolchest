@@ -25,7 +25,7 @@
         android:defaultValue="33"
         android:entries="@array/pref_coe"
         android:entryValues="@array/pref_coe_list_values"
-        android:key="coe"
+        android:key="pref_coe"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:title="@string/pref_title_which_coe" />

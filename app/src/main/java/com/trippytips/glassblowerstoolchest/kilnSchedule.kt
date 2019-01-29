@@ -20,8 +20,9 @@ class Ks{
     var step13 : String = ""
     var step14 : String = ""
     var step15 : String = ""
+    var coe : Int = 0
 
-    constructor(id: Int,name:String,thickness:String,step1:String,step2:String,step3:String,step4:String,step5:String,step6:String,step7:String,step8:String,step9:String,step10:String,step11:String,step12:String,step13:String,step14:String,step15:String) {
+    constructor(id: Int,name:String,thickness:String,step1:String,step2:String,step3:String,step4:String,step5:String,step6:String,step7:String,step8:String,step9:String,step10:String,step11:String,step12:String,step13:String,step14:String,step15:String,coe:Int) {
         this.id = id
         this.name = name
         this.thickness = thickness
@@ -40,9 +41,10 @@ class Ks{
         this.step13 = step13
         this.step14 = step14
         this.step15 = step15
+        this.coe = coe
     }
 
-    constructor(name:String,thickness:String,step1:String,step2:String,step3:String,step4:String,step5:String,step6:String,step7:String,step8:String,step9:String,step10:String,step11:String,step12:String,step13:String,step14:String,step15:String) {
+    constructor(name:String,thickness:String,step1:String,step2:String,step3:String,step4:String,step5:String,step6:String,step7:String,step8:String,step9:String,step10:String,step11:String,step12:String,step13:String,step14:String,step15:String,coe:Int) {
         this.name = name
         this.thickness = thickness
         this.step1 = step1
@@ -60,6 +62,7 @@ class Ks{
         this.step13 = step13
         this.step14 = step14
         this.step15 = step15
+        this.coe = coe
     }
 
     constructor() {
