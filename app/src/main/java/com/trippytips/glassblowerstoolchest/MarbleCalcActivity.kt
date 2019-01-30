@@ -5,6 +5,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.GridLayoutManager
@@ -17,6 +18,7 @@ import kotlinx.android.synthetic.main.activity_marble_calc.*
 import kotlinx.android.synthetic.main.marble_calc_child.view.*
 import kotlinx.android.synthetic.main.specify_marble_dialog.*
 import kotlinx.android.synthetic.main.new_schedule_dialog.*
+import java.lang.NullPointerException
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.util.*
@@ -30,21 +32,37 @@ class MarbleCalcActivity : AppCompatActivity() {
     lateinit var marbleslider : SeekBar
     lateinit var marblevalue : TextView
 
-
     lateinit var rodslider : SeekBar
     lateinit var rodvalue : TextView
     var thickness = ""
+    var useStd = true
+    var glassCOE = 33
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_marble_calc)
 
-        try{
+        //Set the context
+        var context = this
 
-         loadData()
+        //Get the SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
-        //Open Anneal-o-Matic
+        //Set the COE from SharedPreferences
+        val COE = prefs.getString("pref_coe","33")
+        glassCOE = COE.toInt()
+
+        //Set the measurements to Standard or Metric
+        val stdmet = prefs.getBoolean("stdmet", true)
+        useStd = stdmet
+        if(!useStd){
+            Toast.makeText(context,"The preferences are set to Metric.",Toast.LENGTH_LONG).show()
+        }
+
+        loadData()
+
+        //Open Anneal-o-Matic and Pass the Thickness Value
         btn_Anneal.setOnClickListener {
             val intent = Intent(this, AnnealActivity::class.java)
             intent.putExtra("GlassThickness", thickness)
@@ -56,45 +74,54 @@ class MarbleCalcActivity : AppCompatActivity() {
 
         }
 
-
+        //Set up the RecyclerView to display the results
         rvCalculationResults = findViewById(R.id.rvCalculationResults) as RecyclerView
         //rvCalculationResults.layoutManager = LinearLayoutManager(this)
         rvCalculationResults.layoutManager = GridLayoutManager(this,2)
         rvCalculationResults.adapter = MarbleCalculationsAdapter(marblecalculations,this)
 
 
-        //Calculate and display the marble diameter in the TextView, tell the data to load, and tell the RecyclerView to refresh when the progress moves.
+        //Calculate and display the marble diameter in the TextView, tell the data to load,
+        // and tell the RecyclerView to refresh when the progress moves.
         marbleslider = findViewById(R.id.sb_MarbleSlider) as SeekBar
         marblevalue = findViewById(R.id.tvMarbleValue) as TextView
 
+
+        //Set up the Marble Slider
         marbleslider.max = 100 //default is 100
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 marbleslider.min = 1
             }
-            marbleslider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                val formatProgress  = progress.toDouble() / 10
-                marblevalue.text = formatProgress.toString() + " inch Marble Size"
-                marblecalculations.clear()
-                loadData()
-                rvCalculationResults.adapter?.notifyDataSetChanged()
-            }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                marbleslider.max = 100
-            }
+        //Tell the Marble Slider what to do when it is changed.
+        marbleslider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            val formatProgress  = progress.toDouble() / 10
+            marblevalue.text = formatProgress.toString() + " inch Marble Size"
+            marblecalculations.clear()
+            loadData()
+            rvCalculationResults.adapter?.notifyDataSetChanged()
+        }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+            marbleslider.max = 100
+        }
 
-            }
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+
+        }
         })
 
-        //Set the list of readily available rod diameters to be displayed in the TextView, tell the data to load, and tell the RecyclerView to refresh when the progress moves.
+
+         //Set up the Rod Size Slider
         rodslider = findViewById(R.id.sb_RodSlider) as SeekBar
         rodvalue = findViewById(R.id.tvRodValue) as TextView
+        rodslider.max = 27 //Starts at 0, there are 28 standard rod sizes.
+
+        //Set the list of readily available rod diameters to be displayed in the TextView,
         val rodSizeList = listOf("3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "12.7", "13", "14", "15", "15.9", "16", "18", "19", "20", "22", "24", "25.4", "26", "28", "30", "31.7", "38", "44")
 
-        rodslider.max = 27 //default is 100
+        //When the Rod Size Slider Changes Set the textbox, calculate the data, and refresh the RecyclerView Adapter
         rodslider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 rodvalue.text = rodSizeList[progress] + " mm Rod Size"
@@ -103,44 +130,50 @@ class MarbleCalcActivity : AppCompatActivity() {
                 rvCalculationResults.adapter?.notifyDataSetChanged()
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
 
-        //Open Specify Marble Size Dialog
+        //Open Specify Marble Size Dialog When the Specify button is Clicked.
         btn_Specify_Marble.setOnClickListener {
+
+            //Specify view values for the Dialog
             val dialog = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.specify_marble_dialog, null)
             val etnumber = dialogView.findViewById<EditText>(R.id.et_number_marble)
 
-
+            //Set up the Dialog
             dialog.setView(dialogView)
             dialog.setCancelable(false)
+
+            //What Happens When the Dialog's Specify Button is Pressed
             dialog.setPositiveButton("Specify") { dialogInterface: DialogInterface, i: Int ->
-                val customMarbleDiameterString = etnumber.text.toString()
-                val customMarbleDiameterInt = etnumber.text.toString().toDouble()
-                Toast.makeText(baseContext, "Custom Marble Diameter is now $customMarbleDiameterString",Toast.LENGTH_SHORT).show()
-                sb_MarbleSlider.max = (customMarbleDiameterInt * 10).toInt()
-                sb_MarbleSlider.progress = (customMarbleDiameterInt * 10).toInt()
+
+                //Get the diameter from the dialog if one is specified.
+                try {
+                    val customMarbleDiameterString = etnumber.text.toString()
+                    val customMarbleDiameterInt = etnumber.text.toString().toDouble()
+                    Toast.makeText(
+                        baseContext,
+                        "Custom Marble Diameter is now $customMarbleDiameterString",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    sb_MarbleSlider.max = (customMarbleDiameterInt * 10).toInt()
+                    sb_MarbleSlider.progress = (customMarbleDiameterInt * 10).toInt()
+
+                //If No Value is Specified, Tell the user to Enter One.
+                }catch (e:Exception){
+                    Toast.makeText(context,"Please Enter a Valid Value.",Toast.LENGTH_SHORT).show()
+                }
             }
+
+            //Show The Dialog
             val customDialog = dialog.create()
             customDialog.show()
         }
 
-
-        } catch(e:Exception) {
-            e.printStackTrace()
-            Toast.makeText(this, "Please Tell Bert the following error message: \n\n" + e.toString(),
-                Toast.LENGTH_LONG).show()
-        }
-
-
-        }
+    }
 
     //RecyclerView Adapter for Marble Calculations
     class MarbleCalculationsAdapter(items : List<String>,ctx:Context) : RecyclerView.Adapter<MarbleCalculationsAdapter.ViewHolder>(){
@@ -163,8 +196,6 @@ class MarbleCalcActivity : AppCompatActivity() {
         class ViewHolder(v: View) : RecyclerView.ViewHolder(v){
             val name = v.marble_calc_result
         }
-
-
     }
 
 
@@ -214,13 +245,14 @@ class MarbleCalcActivity : AppCompatActivity() {
         marblecalculations.add("$strMarbleVolumeStandard inches³\n$strMarbleVolumeMetric mm³" )
 
 
-        //Change the Size of the Marble/Rod Images When the sliders move
+        //Change the Size of the Marble Images When the Marble slider moves
         val ivMarbleImage : ImageView = findViewById(R.id.iv_Marble)
         val paramsMarble = ivMarbleImage.getLayoutParams() as ViewGroup.LayoutParams
         paramsMarble.width = marbleRadiusMetric.roundToInt() * 7
         paramsMarble.height = marbleRadiusMetric.roundToInt() * 7
         ivMarbleImage.setLayoutParams(paramsMarble)
 
+        //Change the Size of the Rod Image when the Rod Size slider moves
         val ivRodImage : ImageView = findViewById(R.id.iv_Rod)
         val paramsRod = iv_Rod.getLayoutParams() as ViewGroup.LayoutParams
         paramsRod.width = rodRadiusMetric.roundToInt() * 7
@@ -256,6 +288,7 @@ class MarbleCalcActivity : AppCompatActivity() {
             Glassblower's Toolchest App (Beta)
             By Bert Langan"""
 
+
         //Use an implicit intent to share the above string to other apps when the button is pressed
         btnShare.setOnClickListener {
             val intent = Intent()
@@ -264,8 +297,6 @@ class MarbleCalcActivity : AppCompatActivity() {
             intent.type = "text/plain"
 
             startActivity(Intent.createChooser(intent, "Where would you like to share?"))
-
-
         }
 
     }

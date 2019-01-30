@@ -58,6 +58,7 @@ class AnnealActivity : AppCompatActivity() {
     var spinnerSize = 0
     var roomtemp:Float = 70F
     var glassCOE = 33
+    var useStd = true
 
 
 
@@ -66,10 +67,17 @@ class AnnealActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_anneal)
 
-        //Get the COE from SharedPreferences
+        //Get the SharedPreferences
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        //Set the COE from SharedPreferences
         val COE = prefs.getString("pref_coe","33")
         glassCOE = COE.toInt()
+        //Set the measurements to Standard or Metric
+        val stdmet = prefs.getBoolean("stdmet", true)
+        useStd = stdmet
+        if(!useStd){
+            Toast.makeText(context,"The preferences are set to Metric.",Toast.LENGTH_LONG).show()
+        }
 
         //Show a toast explaining future plans to testers :)
         //Toast.makeText(this, "The load button is now selected automatically when you pick from the list.\nIt will be something else eventually.\nIgnore it for now :)",Toast.LENGTH_LONG).show()
@@ -179,8 +187,8 @@ class AnnealActivity : AppCompatActivity() {
         }
 
 
-    //Generate a new Schedule
 
+    //Import from Marble Calculator if Possible
     fun importSchedule(){
         try{
             val bundle: Bundle? = intent.extras
@@ -199,6 +207,7 @@ class AnnealActivity : AppCompatActivity() {
         }
     }
 
+    //Create a New Schedule
     fun newschedule(view: View) {
         val spinner = findViewById<Spinner>(R.id.spin_Schedules)
         val dialog = AlertDialog.Builder(this)
@@ -209,24 +218,30 @@ class AnnealActivity : AppCompatActivity() {
         dialog.setView(dialogView)
         dialog.setCancelable(false)
         dialog.setPositiveButton("Specify") { dialogInterface: DialogInterface, i: Int ->
-            val customThicknessString = etnumber.text.toString()
-            glassthickness = etnumber.text.toString().toDouble()
-            thickness = etnumber.text.toString()
-            name = etScheduleName.text.toString()
-            Toast.makeText(
-                baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
-                        "Name of Schedule is now $name", Toast.LENGTH_LONG
-            ).show()
-            calculateschedule()
-            if (spinnerSize >= db.readData().size) {
-                id = db.readData().size
-                //spinner.setSelection(id+1)
-            }
-            saveschedule()
+         try {
+             val customThicknessString = etnumber.text.toString()
+             glassthickness = etnumber.text.toString().toDouble()
+             thickness = etnumber.text.toString()
+             name = etScheduleName.text.toString()
+             Toast.makeText(
+                 baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
+                         "Name of Schedule is now $name", Toast.LENGTH_LONG
+             ).show()
+             calculateschedule()
+             if (spinnerSize >= db.readData().size) {
+                 id = db.readData().size
+                 //spinner.setSelection(id+1)
+             }
+             saveschedule()
+
+         //If Nothing was Entered...
+         }catch (e: Exception){
+             Toast.makeText(context, "Please Enter A Valid Name and Size.",Toast.LENGTH_LONG).show()
+         }
         }
         val customDialog = dialog.create()
         customDialog.show()
-        }
+    }
 
 
 

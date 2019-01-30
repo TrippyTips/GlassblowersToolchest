@@ -22,88 +22,23 @@ class CertificateActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_certificate)
-      //  setSupportActionBar(toolbar)
 
-
+        //When the Generate Button is Clicked
         btnCertGenerate.setOnClickListener {
-          val Title = etCertTitle.text.toString()
-          val Artist = etCertName.text.toString()
-          val Date = etCertDateCreated.text.toString()
-          val Size = etCertSize.text.toString()
-          val Weight = etCertWeight.text.toString()
-          val Technique = etCertTechnique.text.toString()
-          val SignatureReadsAs = etCertSignatureReadsAs.text.toString()
-          val OGOwner = etOriginalOwner.text.toString()
-            Toast.makeText(this, "$Title $Artist $Date $Size $Weight $Technique $SignatureReadsAs $OGOwner", Toast.LENGTH_LONG).show()
-            val htmlTable = "<style type=\"text/css\">\n" +
-                    ".tg  {border-collapse:collapse;border-spacing:0;border-color:#ccc;}\n" +
-                    ".tg td{font-family:Arial, sans-serif;font-size:14px;padding:14px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#fff;}\n" +
-                    ".tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:14px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#f0f0f0;}\n" +
-                    ".tg .tg-ts09{background-color:#cccccc;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
-                    ".tg .tg-2be4{font-size:20px;font-family:Impact, Charcoal, sans-serif !important;;background-color:#c0c0c0;border-color:#c0c0c0;text-align:center;vertical-align:top}\n" +
-                    ".tg .tg-pnhl{background-color:#c0c0c0;border-color:#c0c0c0;text-align:left;vertical-align:top}\n" +
-                    ".tg .tg-5b55{background-color:#9b9b9b;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
-                    ".tg .tg-e20j{background-color:#9b9b9b;color:#000000;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
-                    ".tg .tg-gl8g{font-weight:bold;font-size:22px;font-family:\"Times New Roman\", Times, serif !important;;background-color:#e5e5e5;border-color:#656565;text-align:center;vertical-align:top}\n" +
-                    ".tg .tg-wtjf{font-weight:bold;font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
-                    ".tg .tg-waxd{font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:right;vertical-align:top}\n" +
-                    "</style>\n" +
-                    "<table class=\"tg\">\n" +
-                    "  <tr>\n" +
-                    "    <th class=\"tg-e20j\" rowspan=\"13\"></th>\n" +
-                    "    <th class=\"tg-5b55\" colspan=\"4\"></th>\n" +
-                    "    <th class=\"tg-5b55\" rowspan=\"13\"></th>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-pnhl\" rowspan=\"11\"></td>\n" +
-                    "    <td class=\"tg-pnhl\" colspan=\"2\"></td>\n" +
-                    "    <td class=\"tg-pnhl\" rowspan=\"11\"></td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-gl8g\" colspan=\"2\">$Title</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-2be4\" colspan=\"2\">by $Artist</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-wtjf\">Created on </td>\n" +
-                    "    <td class=\"tg-waxd\">$Date</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-wtjf\">Size</td>\n" +
-                    "    <td class=\"tg-waxd\">$Size</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-wtjf\">Weight</td>\n" +
-                    "    <td class=\"tg-waxd\">$Weight</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-wtjf\">Technique Used</td>\n" +
-                    "    <td class=\"tg-waxd\">$Technique</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-wtjf\">Origin</td>\n" +
-                    "    <td class=\"tg-waxd\">$OGOwner</td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-wtjf\">Signature Reads</td>\n" +
-                    "    <td class=\"tg-waxd\">$SignatureReadsAs<br></td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-ts09\" colspan=\"2\"><span style=\"font-weight:bold\">Signature _______________________________________________Date_______________</span></td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-pnhl\" colspan=\"2\"></td>\n" +
-                    "  </tr>\n" +
-                    "  <tr>\n" +
-                    "    <td class=\"tg-5b55\" colspan=\"4\"></td>\n" +
-                    "  </tr>\n" +
-                    "</table>"
-/*
-            val intent = Intent(this, SocialActivity::class.java)
-            intent.putExtra("htmlTable", htmlTable)
-            startActivity(intent)*/
 
+            //Set values to what is written in the EditTexts
+            val Title = etCertTitle.text.toString()
+            val Artist = etCertName.text.toString()
+            val Date = etCertDateCreated.text.toString()
+            val Size = etCertSize.text.toString()
+            val Weight = etCertWeight.text.toString()
+            val Technique = etCertTechnique.text.toString()
+            val SignatureReadsAs = etCertSignatureReadsAs.text.toString()
+            val OGOwner = etOriginalOwner.text.toString()
+
+
+            //Call the printWebView Function or explain why
+            // it cannot be called to users without compatible Android Versions
             try {
                 printWebView()
             }catch (e:Exception){
@@ -111,7 +46,8 @@ class CertificateActivity : AppCompatActivity() {
             }
         }
 
-
+        //When the Date Button is Clicked call the getDate function or
+        //explain why it cannot be called to users without compatible Android Versions
         btnDate.setOnClickListener {
             try{
                 getDate()
@@ -119,9 +55,15 @@ class CertificateActivity : AppCompatActivity() {
                 Toast.makeText(this, "This feature requires a newer version of Android.\nA more compatible version is under development.", Toast.LENGTH_LONG).show()
             }
         }
+
+
         //configureWebView()
     }
-    /* fun configureWebView() {
+
+
+    //Possible future Workaround for users with lower Android Versions
+    /*
+    fun configureWebView() {
 
         myWebView?.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(
@@ -135,28 +77,44 @@ class CertificateActivity : AppCompatActivity() {
             "https://developer.android.com/google/index.html")
 
     }
-*/
+    */
 
+    //Get the date when called.
     fun getDate() {
+        //Make sure user has Android N or Higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            //Set the Values for the Calender
             val c = Calendar.getInstance()
             val year = c.get(Calendar.YEAR)
-        val month = c.get(Calendar.MONTH)
-        val day = c.get(Calendar.DAY_OF_MONTH)
+            val month = c.get(Calendar.MONTH)
+            val day = c.get(Calendar.DAY_OF_MONTH)
 
-        val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
-            // Display Selected date in textbox
-            val month = month + 1
-            etCertDateCreated.setText("$month/$dayOfMonth/$year")
-        }, year, month, day)
-        dpd.show()
+            //Set up the Date Picker Dialog
+            val dpd = DatePickerDialog(this, DatePickerDialog.OnDateSetListener { view, year, month, dayOfMonth ->
+
+                val month = month + 1 //Add one to the month because they start at 0
+
+                // Display Selected date in textbox
+                etCertDateCreated.setText("$month/$dayOfMonth/$year")
+            }, year, month, day)
+
+            //Show the Date Picker Dialog
+            dpd.show()
+
+         //If the user has a version older than Android N
         }else{
             Toast.makeText(this, "This feature requires a newer version of Android.\nA more compatible version is under Development.", Toast.LENGTH_LONG).show()
         }
     }
 
+
+    //Create a WebView to be printed from the values entered in the EditTexts
     fun printWebView() {
+
+        //Assign a Value the WebView to be created
         val webView = WebView(this)
+
+        //Assign Values to the EditTexts Contents
         val title = etCertTitle.text.toString()
         val artist = etCertName.text.toString()
         val date = etCertDateCreated.text.toString()
@@ -165,6 +123,9 @@ class CertificateActivity : AppCompatActivity() {
         val technique = etCertTechnique.text.toString()
         val sigreadsas = etCertSignatureReadsAs.text.toString()
         val ogowner = etOriginalOwner.text.toString()
+
+        //When the page is finished call the createWebPrintJob
+        // function and afterwards nullify the myWebView Value
         webView.webViewClient = object : WebViewClient() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest): Boolean {
                     return false
@@ -173,17 +134,13 @@ class CertificateActivity : AppCompatActivity() {
                 override fun onPageFinished(view: WebView, url: String) {
 
                     createWebPrintJob(view)
+
                     myWebView = null
                 }
             }
-        val htmlDocument = "<html><body><h1>$title</h1><p>" +
-                "<h2>by $artist</h2><p>" +
-                "Created on $date<p>" +
-                "Size: $size<p>" +
-                "Weight: $weight<p>" +
-                "Technique Used: $technique<p>" +
-                "Signed: $sigreadsas<p>" +
-                "Original Owner: $ogowner</body></html>"
+
+
+        //Assign a value to Formatted Certificate
         val htmlTable = "<style type=\"text/css\">\n" +
                 ".tg  {border-collapse:collapse;border-spacing:0;border-color:#ccc;}\n" +
                 ".tg td{font-family:Arial, sans-serif;font-size:14px;padding:14px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#fff;}\n" +
@@ -248,27 +205,34 @@ class CertificateActivity : AppCompatActivity() {
                 "    <td class=\"tg-5b55\" colspan=\"4\"></td>\n" +
                 "  </tr>\n" +
                 "</table>"
+
+        //Load the data in to webView
         webView.loadDataWithBaseURL(null, htmlTable, "text/HTML", "UTF-8", null)
+
+        //Make sure the createWebPrintJob can read the loaded webview
         myWebView = webView
-        }
+    }
 
 
-
+    //Process myWebView as a Print Job
     private fun createWebPrintJob(webView: WebView) {
+
+        //Make sure the user is using Android L or greater
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-        val printManager = this
-            .getSystemService(Context.PRINT_SERVICE) as PrintManager
-        val Title = etCertTitle.text.toString()
-        val printAdapter = webView.createPrintDocumentAdapter("COA_$Title")
 
-        val jobName = getString(R.string.app_name) + " COA"
+            //Set a Value to the PrintManager
+            val printManager = this.getSystemService(Context.PRINT_SERVICE) as PrintManager
 
-            printManager.print(
-                jobName, printAdapter,
-                PrintAttributes.Builder().build()
-            )
+            //Set up the print
+            val Title = etCertTitle.text.toString()
+            val printAdapter = webView.createPrintDocumentAdapter("COA_$Title")
+            val jobName = getString(R.string.app_name) + " COA"
+
+            //Print
+            printManager.print(jobName, printAdapter, PrintAttributes.Builder().build())
+
+        //Show the User that they cannot print due to an Android version of M or Lower
         }else{
-
             Toast.makeText(this, "This feature requires a newer version of Android.\nA more compatible version is under Development.", Toast.LENGTH_LONG).show()
         }
     }

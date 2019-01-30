@@ -12,6 +12,7 @@ class PolariscopeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_polariscope)
 
+        //Give Instructions When the ? Button is clicked.
         btnPolariscopeHelp.setOnClickListener {
         Toast.makeText(this, "Use the Screen as a back light for your glass while wearing polarised glasses to view stress.", Toast.LENGTH_LONG).show()
     }
