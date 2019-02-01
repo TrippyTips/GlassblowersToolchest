@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.preference.PreferenceManager
+import android.support.v4.content.ContextCompat
 import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -15,6 +16,7 @@ import android.view.View
 import android.widget.*
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
+import com.github.mikephil.charting.components.AxisBase
 import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.Legend.LegendPosition.BELOW_CHART_CENTER
@@ -22,7 +24,9 @@ import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
+import com.github.mikephil.charting.formatter.IAxisValueFormatter
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet
+import com.github.mikephil.charting.utils.Utils
 import kotlinx.android.synthetic.main.activity_anneal.*
 import java.io.File
 import java.io.FileOutputStream
@@ -56,11 +60,9 @@ class AnnealActivity : AppCompatActivity() {
     var degrees5: String = "-"
     var hold5: String = "-"
     var spinnerSize = 0
-    var roomtemp:Float = 70F
+    var roomtemp: Float = 70F
     var glassCOE = 33
     var useStd = true
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,13 +72,13 @@ class AnnealActivity : AppCompatActivity() {
         //Get the SharedPreferences
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
         //Set the COE from SharedPreferences
-        val COE = prefs.getString("pref_coe","33")
+        val COE = prefs.getString("pref_coe", "33")
         glassCOE = COE.toInt()
         //Set the measurements to Standard or Metric
         val stdmet = prefs.getBoolean("stdmet", true)
         useStd = stdmet
-        if(!useStd){
-            Toast.makeText(context,"The preferences are set to Metric.",Toast.LENGTH_LONG).show()
+        if (!useStd) {
+            Toast.makeText(context, "The preferences are set to Metric.", Toast.LENGTH_LONG).show()
         }
 
         //Show a toast explaining future plans to testers :)
@@ -116,7 +118,7 @@ class AnnealActivity : AppCompatActivity() {
         for (i in 0..(data.size - 1)) {
             options.add(i, data.get(i).name)
             options[i] = data.get(i).name
-                                }
+        }
 
         spinnerSize = data.size
 
@@ -124,73 +126,75 @@ class AnnealActivity : AppCompatActivity() {
         //Toast.makeText(this,"data.size = " + data.size.toString() + "\noptions.size = " + options.size.toString() + "\nspinnerSize = $spinnerSize", Toast.LENGTH_LONG).show()
 
         if (data.size != options.size) {
-            options.removeAt(options.size - 1)}
-        if (id > options.size -1){
-            id = options.size -1
+            options.removeAt(options.size - 1)
+        }
+        if (id > options.size - 1) {
+            id = options.size - 1
         }
 
         val arrayAdapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, options)
         preset.adapter = arrayAdapter
 
 
-        if (id>0){preset.setSelection(id)}
-
-            preset.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onNothingSelected(parent: AdapterView<*>?) {
-                    ramp1 = "-"
-                    degrees1 = "-"
-                    hold1 = "-"
-                    ramp2 = "-"
-                    degrees2 = "-"
-                    hold2 = "-"
-                    ramp3 = "-"
-                    degrees3 = "-"
-                    hold3 = "-"
-                    ramp4 = "-"
-                    degrees4 = "-"
-                    hold4 = "-"
-                    ramp5 = "-"
-                    degrees5 = "-"
-                    hold5 = "-"
-                    spinnerSize = 0
-                    cv_Load.performClick()
-                }
-
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-
-                    idSelected = position
-
-                    //A Toast to help debug
-                    //Toast.makeText(context, options[position] + " Selected.  (idSelected = $idSelected)", Toast.LENGTH_SHORT).show()
-
-                        ramp1 = "-"
-                        degrees1 = "-"
-                        hold1 = "-"
-                        ramp2 = "-"
-                        degrees2 = "-"
-                        hold2 = "-"
-                        ramp3 = "-"
-                        degrees3 = "-"
-                        hold3 = "-"
-                        ramp4 = "-"
-                        degrees4 = "-"
-                        hold4 = "-"
-                        ramp5 = "-"
-                        degrees5 = "-"
-                        hold5 = "-"
-
-                    cv_Load.performClick()
-
-
-                }
-            }
+        if (id > 0) {
+            preset.setSelection(id)
         }
 
+        preset.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                ramp1 = "-"
+                degrees1 = "-"
+                hold1 = "-"
+                ramp2 = "-"
+                degrees2 = "-"
+                hold2 = "-"
+                ramp3 = "-"
+                degrees3 = "-"
+                hold3 = "-"
+                ramp4 = "-"
+                degrees4 = "-"
+                hold4 = "-"
+                ramp5 = "-"
+                degrees5 = "-"
+                hold5 = "-"
+                spinnerSize = 0
+                cv_Load.performClick()
+            }
+
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
+                idSelected = position
+
+                //A Toast to help debug
+                //Toast.makeText(context, options[position] + " Selected.  (idSelected = $idSelected)", Toast.LENGTH_SHORT).show()
+
+                ramp1 = "-"
+                degrees1 = "-"
+                hold1 = "-"
+                ramp2 = "-"
+                degrees2 = "-"
+                hold2 = "-"
+                ramp3 = "-"
+                degrees3 = "-"
+                hold3 = "-"
+                ramp4 = "-"
+                degrees4 = "-"
+                hold4 = "-"
+                ramp5 = "-"
+                degrees5 = "-"
+                hold5 = "-"
+
+                cv_Load.performClick()
+
+
+            }
+        }
+    }
 
 
     //Import from Marble Calculator if Possible
-    fun importSchedule(){
-        try{
+    fun importSchedule() {
+        try {
             val bundle: Bundle? = intent.extras
             @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
             importThickness = bundle!!.getString("GlassThickness").toDouble()
@@ -201,7 +205,7 @@ class AnnealActivity : AppCompatActivity() {
             id = db.readData().size
             saveschedule()
             Toast.makeText(context, "Successfully Imported Size From Marble Calculator", Toast.LENGTH_LONG).show()
-        }catch(e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
 
         }
@@ -218,31 +222,30 @@ class AnnealActivity : AppCompatActivity() {
         dialog.setView(dialogView)
         dialog.setCancelable(false)
         dialog.setPositiveButton("Specify") { dialogInterface: DialogInterface, i: Int ->
-         try {
-             val customThicknessString = etnumber.text.toString()
-             glassthickness = etnumber.text.toString().toDouble()
-             thickness = etnumber.text.toString()
-             name = etScheduleName.text.toString()
-             Toast.makeText(
-                 baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
-                         "Name of Schedule is now $name", Toast.LENGTH_LONG
-             ).show()
-             calculateschedule()
-             if (spinnerSize >= db.readData().size) {
-                 id = db.readData().size
-                 //spinner.setSelection(id+1)
-             }
-             saveschedule()
+            try {
+                val customThicknessString = etnumber.text.toString()
+                glassthickness = etnumber.text.toString().toDouble()
+                thickness = etnumber.text.toString()
+                name = etScheduleName.text.toString()
+                Toast.makeText(
+                    baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
+                            "Name of Schedule is now $name", Toast.LENGTH_LONG
+                ).show()
+                calculateschedule()
+                if (spinnerSize >= db.readData().size) {
+                    id = db.readData().size
+                    //spinner.setSelection(id+1)
+                }
+                saveschedule()
 
-         //If Nothing was Entered...
-         }catch (e: Exception){
-             Toast.makeText(context, "Please Enter A Valid Name and Size.",Toast.LENGTH_LONG).show()
-         }
+                //If Nothing was Entered...
+            } catch (e: Exception) {
+                Toast.makeText(context, "Please Enter A Valid Name and Size.", Toast.LENGTH_LONG).show()
+            }
         }
         val customDialog = dialog.create()
         customDialog.show()
     }
-
 
 
     //Derive the Data for the Annealing Schedule
@@ -262,62 +265,62 @@ class AnnealActivity : AppCompatActivity() {
 
         //Ramp 1 Calculations
         ramp1 =
-                if (60 * ((1.08 * 1000) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+            if (60 * ((1.08 * 1000) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
 
-                    df.format(60 * ((1.08 * 1000) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+                df.format(60 * ((1.08 * 1000) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
 
-                } else {
+            } else {
 
-                    "FULL"
-                }
+                "FULL"
+            }
 
         //Degrees 1 Calculation
         degrees1 =
-                when (glassCOE) {
-                    33 -> "1058"
-                    90 -> "980"
-                    96 -> "950"
-                    104 -> "970"
-                    else -> "?"
-                }
+            when (glassCOE) {
+                33 -> "1058"
+                90 -> "980"
+                96 -> "950"
+                104 -> "970"
+                else -> "?"
+            }
 
         //Hold 1 Calculation
         hold1 = df.format(30 + (4 * (Math.pow(glassthickness.toDouble(), 2.00))))
 
         //Ramp 2 Calculation
         ramp2 =
-                if (60 * ((.54 * 250) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+            if (60 * ((.54 * 250) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
 
-                    df.format(60 * ((.54 * 250) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+                df.format(60 * ((.54 * 250) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
 
-                } else {
+            } else {
 
-                    "FULL"
-                }
+                "FULL"
+            }
 
         //Degrees 2 Calculation
         degrees2 =
-                when (glassCOE) {
-                    33 -> "950"
-                    90 -> "750"
-                    96 -> "700"
-                    104 -> "680"
-                    else -> "?"
-                }
+            when (glassCOE) {
+                33 -> "950"
+                90 -> "750"
+                96 -> "700"
+                104 -> "680"
+                else -> "?"
+            }
 
         //Hold 2 Calculation
         hold2 = df.format(15 + (2 * (Math.pow(glassthickness.toDouble(), 2.00))))
 
         //Ramp 3 Calculation
         ramp3 =
-                if (60 * ((.54 * 750) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
+            if (60 * ((.54 * 750) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))) <= 1798) {
 
-                    df.format(60 * ((.54 * 750) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
+                df.format(60 * ((.54 * 750) / ((glassCOE * (Math.pow(glassthickness.toDouble(), 2.00))))))
 
-                } else {
+            } else {
 
-                    "FULL"
-                }
+                "FULL"
+            }
 
         degrees3 = "70"
         hold3 = "0"
@@ -354,13 +357,34 @@ class AnnealActivity : AppCompatActivity() {
 
 
     //Generate a chart to represent the schedule
+    @Suppress("UsePropertyAccessSyntax")
     fun generateChart() {
         //If the ramps are set to "FULL" change them to "1798"
-        try {ramp1.toFloat()} catch (e: NumberFormatException) {ramp1 = "1798"}
-        try {ramp2.toFloat()} catch (e: NumberFormatException) {ramp2 = "1798"}
-        try {ramp3.toFloat()} catch (e: NumberFormatException) {ramp3 = "1798"}
-        try {ramp4.toFloat()} catch (e: NumberFormatException) {ramp4 = "1798"}
-        try {ramp5.toFloat()} catch (e: NumberFormatException) {ramp5 = "1798"}
+        try {
+            ramp1.toFloat()
+        } catch (e: NumberFormatException) {
+            ramp1 = "1798"
+        }
+        try {
+            ramp2.toFloat()
+        } catch (e: NumberFormatException) {
+            ramp2 = "1798"
+        }
+        try {
+            ramp3.toFloat()
+        } catch (e: NumberFormatException) {
+            ramp3 = "1798"
+        }
+        try {
+            ramp4.toFloat()
+        } catch (e: NumberFormatException) {
+            ramp4 = "1798"
+        }
+        try {
+            ramp5.toFloat()
+        } catch (e: NumberFormatException) {
+            ramp5 = "1798"
+        }
 
         //Assign the chart to lineChartView
         val lineChartView = findViewById<LineChart>(R.id.line_chart)
@@ -371,7 +395,7 @@ class AnnealActivity : AppCompatActivity() {
         //Chart Description
         val chartDescription: Description = lineChartView.description
         chartDescription.text = ""
-        chartDescription.setPosition(lineChartView.width*.55F,lineChartView.height*.8F)
+        chartDescription.setPosition(lineChartView.width * .55F, lineChartView.height * .8F)
         lineChartView.description = chartDescription
 
         //Legend
@@ -385,7 +409,7 @@ class AnnealActivity : AppCompatActivity() {
 
 
         //No Data Text
-        lineChartView.setNoDataText("Please Load a Schedule.")
+        lineChartView.setNoDataText("Please Create a New Schedule.")
         lineChartView.setNoDataTextColor(Color.WHITE)
 
         //Grid & Borders
@@ -399,6 +423,7 @@ class AnnealActivity : AppCompatActivity() {
         xAxis.textColor = Color.WHITE
         //xAxis.setAxisMinimum(0.5F)
         xAxis.setGranularity(0.5F)
+        xAxis.setValueFormatter(XAxisValueFormatter())
 
         //Y-Axis (Temp)
         val yAxisL = lineChartView.getAxis(YAxis.AxisDependency.LEFT)
@@ -408,6 +433,7 @@ class AnnealActivity : AppCompatActivity() {
         yAxisL.setAxisMinimum(0F)
         yAxisL.setAxisMaximum(1700F)
         yAxisL.setGranularity(500F)
+        yAxisL.setValueFormatter(YAxisValueFormatter())
 
         //Animations
         //lineChartView.animateXY(3000,3000, Easing.EasingOption.EaseOutBounce, Easing.EasingOption.EaseInOutBounce)
@@ -416,15 +442,15 @@ class AnnealActivity : AppCompatActivity() {
         //Calculate the coordinates and assign them to vals
         val chartx1 = 0F
         val charty1 = roomtemp
-        val chartx2 = ((60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1))/60F
+        val chartx2 = ((60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1)) / 60F
         val charty2 = degrees1.toFloat()
-        val chartx3 = chartx2 + (hold1.toFloat()/60F)
+        val chartx3 = chartx2 + (hold1.toFloat() / 60F)
         val charty3 = degrees1.toFloat()
-        val chartx4 = chartx3 + (((60 / ramp2.toFloat()) * (charty3 - degrees2.toFloat()))/60F)
+        val chartx4 = chartx3 + (((60 / ramp2.toFloat()) * (charty3 - degrees2.toFloat())) / 60F)
         val charty4 = degrees2.toFloat()
-        val chartx5 = chartx4 + (hold2.toFloat()/60F)
+        val chartx5 = chartx4 + (hold2.toFloat() / 60F)
         val charty5 = degrees2.toFloat()
-        val chartx6 = chartx5 + (((60 / ramp3.toFloat()) * (charty5 - degrees3.toFloat()))/60F)
+        val chartx6 = chartx5 + (((60 / ramp3.toFloat()) * (charty5 - degrees3.toFloat())) / 60F)
         val charty6 = roomtemp
         val chartx7 = chartx6 //placeholder for now
         val charty7 = charty6 //placeholder for now
@@ -441,13 +467,25 @@ class AnnealActivity : AppCompatActivity() {
         //Assign dataVals ArrayList and a name to the first line data set.
         val lineDataSet1 = LineDataSet(dataVals, "Schedule Calculated for $glassthickness\" Thickness [COE $glassCOE]")
 
+
         //Creata an ArrayList for the data sets and add the line data sets.
         val dataSets = ArrayList<ILineDataSet>()
         dataSets.add(lineDataSet1)
 
+
         //create a val that contains all the above data and load it in to the chart.
         val data = LineData(dataSets)
         lineChartView.data = data
+
+        // set the filled area
+        lineDataSet1.setDrawFilled(true)
+        if (Utils.getSDKInt() >= 18) {
+            //Drawables are only available after api level 18.
+            val drawable = ContextCompat.getDrawable(this, R.drawable.fade_red)
+            lineDataSet1.setFillDrawable(drawable)
+        }else{
+            lineDataSet1.setFillColor(Color.RED)
+        }
 
         //refresh the chart with the newly loaded data
         lineChartView.invalidate()
@@ -465,10 +503,29 @@ class AnnealActivity : AppCompatActivity() {
         xAxisValues.add("xAxisValues8")
         xAxisValues.add("xAxisValues9")
         xAxisValues.add("xAxisValues10")
+    }
 
+    //Format the Values for the X Axis
+    class XAxisValueFormatter: IAxisValueFormatter {
 
+        val mFormat = DecimalFormat("###,###,##0")
+
+        override fun getFormattedValue(value: Float, axis: AxisBase?): String {
+            return mFormat.format(value) + "hr"
+        }
 
     }
+
+    //Format the Values for the Y Axis
+    class YAxisValueFormatter: IAxisValueFormatter {
+
+        val mFormat = DecimalFormat("###,###,##0")
+        override fun getFormattedValue(value: Float, axis: AxisBase?): String {
+            return mFormat.format(value)+"°"
+        }
+
+    }
+
 
 
     //Save the data to the Database
@@ -693,6 +750,7 @@ class AnnealActivity : AppCompatActivity() {
             //Reset the chart
             try{
                 lineChartView.clearValues()
+                lineChartView.clear()
             }catch(e: NullPointerException){Toast.makeText(context,"Please Create a New Schedule.", Toast.LENGTH_LONG).show()}
 
         }
