@@ -44,23 +44,31 @@ class MarbleCalcActivity : AppCompatActivity() {
         setContentView(R.layout.activity_marble_calc)
 
         //Set the context
-        var context = this
+        val context = this
+
+        //Assign a value to the Marble Value TV
+        marblevalue = findViewById(R.id.tvMarbleValue) as TextView
 
         //Get the SharedPreferences
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
 
         //Set the COE from SharedPreferences
         val COE = prefs.getString("pref_coe","33")
+        @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
         glassCOE = COE.toInt()
 
         //Set the measurements to Standard or Metric
         val stdmet = prefs.getBoolean("stdmet", true)
         useStd = stdmet
         if(!useStd){
+            marblevalue.text = getString(R.string.MCMetricStarter)
             Toast.makeText(context,"The preferences are set to Metric.",Toast.LENGTH_LONG).show()
         }
 
         loadData()
+
+        val df = DecimalFormat("#.##")
+        df.roundingMode = RoundingMode.HALF_UP
 
         //Open Anneal-o-Matic and Pass the Thickness Value
         btn_Anneal.setOnClickListener {
@@ -97,7 +105,12 @@ class MarbleCalcActivity : AppCompatActivity() {
         marbleslider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
             val formatProgress  = progress.toDouble() / 10
-            marblevalue.text = formatProgress.toString() + " inch Marble Size"
+
+            if (!useStd){
+                marblevalue.text = df.format((formatProgress * 2.54)) + " cm Marble Size"
+            }else {
+                marblevalue.text = formatProgress.toString() + " inch Marble Size"
+            }
             marblecalculations.clear()
             loadData()
             rvCalculationResults.adapter?.notifyDataSetChanged()
@@ -142,6 +155,17 @@ class MarbleCalcActivity : AppCompatActivity() {
             val dialog = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.specify_marble_dialog, null)
             val etnumber = dialogView.findViewById<EditText>(R.id.et_number_marble)
+            var customMarbleDiameterString = "0.00"
+            var customMarbleDiameterInt: Double
+
+            //Set up the decimal formatter
+            val df = DecimalFormat("#.##")
+            df.roundingMode = RoundingMode.HALF_UP
+
+            //Change the custom diameter hint if preferences are set to metric
+            if(!useStd){
+                etnumber.hint = "Enter Desired Diameter (cm)"
+            }
 
             //Set up the Dialog
             dialog.setView(dialogView)
@@ -152,13 +176,17 @@ class MarbleCalcActivity : AppCompatActivity() {
 
                 //Get the diameter from the dialog if one is specified.
                 try {
-                    val customMarbleDiameterString = etnumber.text.toString()
-                    val customMarbleDiameterInt = etnumber.text.toString().toDouble()
-                    Toast.makeText(
-                        baseContext,
-                        "Custom Marble Diameter is now $customMarbleDiameterString",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    if(!useStd){
+                        customMarbleDiameterString = df.format(etnumber.text.toString().toDouble() / 2.54).toString()
+                        customMarbleDiameterInt = df.format(etnumber.text.toString().toDouble() / 2.54).toDouble()
+                        Toast.makeText(baseContext,"Custom Marble Diameter is now $customMarbleDiameterString centimeters",Toast.LENGTH_SHORT).show()
+                    }else{
+                        customMarbleDiameterString = etnumber.text.toString()
+                        customMarbleDiameterInt = etnumber.text.toString().toDouble()
+                        Toast.makeText(baseContext,"Custom Marble Diameter is now $customMarbleDiameterString inches",Toast.LENGTH_SHORT).show()
+                    }
+
+
                     sb_MarbleSlider.max = (customMarbleDiameterInt * 10).toInt()
                     sb_MarbleSlider.progress = (customMarbleDiameterInt * 10).toInt()
 
@@ -210,7 +238,7 @@ class MarbleCalcActivity : AppCompatActivity() {
         //Calculate the Standard & Metric information derived from the Marble & Rod size entered by the user.
         val marbleRadiusMetric = sb_MarbleSlider.progress.toDouble().div(20) * 25.4 //sb_MarbleSlider has a range of 1-100 and must be divided by 10 to get increments between .25 and 10.  Divide in half to get the proper radius (Thus .div(20))
         val rodRadiusMetric =rodSizeList[sb_RodSlider.progress] / 2.0
-        val marbleVolumeMetric = Math.pow(marbleRadiusMetric, 3.00) * 4/3 * Math.PI
+        val marbleVolumeMetric = (Math.pow(marbleRadiusMetric, 3.00) * 4/3 * Math.PI) //mm^3
         val marbleVolumeStandard = marbleVolumeMetric / 16387.064
         val lengthNeededFeet = marbleVolumeMetric / (Math.pow(rodRadiusMetric, 2.0) *  Math.PI) / 25.4 / 12.0
         val marbleWeightStandard = 0.0222153 * marbleVolumeMetric / 10 * 0.0022046
@@ -218,7 +246,7 @@ class MarbleCalcActivity : AppCompatActivity() {
 
         //Shorten the calculations for readability
         val df = DecimalFormat("#.##")
-        df.roundingMode = RoundingMode.CEILING
+        df.roundingMode = RoundingMode.HALF_UP
 
         //Make string outputs of calculations
         val marblesize = (sb_MarbleSlider.progress / 10.000).toString()
@@ -232,18 +260,50 @@ class MarbleCalcActivity : AppCompatActivity() {
         val strMarbleVolumeMetric = df.format(marbleVolumeMetric).toString()
 
         //Display the information derived on the RecyclerView
-        marblecalculations.add("Calculating for\n" + marblesize + " Inch Marble")
-        marblecalculations.add( "Made from\n" + rodsize + "mm Diameter Rod")
 
-        marblecalculations.add("Length Needed")
-        marblecalculations.add("$strLengthNeededFeet Feet \n($strLengthNeededInches Inches)")
 
-        marblecalculations.add("Weight")
-        marblecalculations.add("$strMarbleWeightStandard lb\n$strMarbleWeightMetric grams")
+        if(!useStd){
+            //Metric
 
-        marblecalculations.add("Volume")
-        marblecalculations.add("$strMarbleVolumeStandard inches³\n$strMarbleVolumeMetric mm³" )
+            //Calculating For...
+            marblecalculations.add("Calculating for\n" + df.format(marblesize.toDouble() * 2.54).toString()  + " cm Marble")
 
+            //Made from...
+            marblecalculations.add( "Made from\n" + rodsize + "mm Diameter Rod")
+
+            //Length Needed...
+            marblecalculations.add("Length Needed")
+            marblecalculations.add(df.format(strLengthNeededInches.toDouble() *2.54) + " cm")
+
+            //Weight...
+            marblecalculations.add("Weight")
+            marblecalculations.add(df.format(strMarbleWeightStandard.toDouble() * .453592) + " kg\n$strMarbleWeightMetric grams")
+
+            //Volume...
+            marblecalculations.add("Volume")
+            marblecalculations.add(df.format(strMarbleVolumeMetric.toDouble()/1000) + " mL" )
+
+        }else {
+            //Standard
+
+            //Calculating For...
+            marblecalculations.add("Calculating for\n$marblesize Inch Marble")
+
+            //Made from...
+            marblecalculations.add( "Made from\n" + rodsize + "mm Diameter Rod")
+
+            //Length Needed...
+            marblecalculations.add("Length Needed")
+            marblecalculations.add("$strLengthNeededFeet Feet \n($strLengthNeededInches Inches)")
+
+            //Weight...
+            marblecalculations.add("Weight")
+            marblecalculations.add("$strMarbleWeightStandard lb\n$strMarbleWeightMetric grams")
+
+            //Volume...
+            marblecalculations.add("Volume")
+            marblecalculations.add(df.format(strMarbleVolumeStandard.toDouble() * 0.55411) + " us fl oz" )
+        }
 
         //Change the Size of the Marble Images When the Marble slider moves
         val ivMarbleImage : ImageView = findViewById(R.id.iv_Marble)

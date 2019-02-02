@@ -120,4 +120,5 @@
     <string name="delete">Delete</string>
     <string name="certificate_name">Certificate Name</string>
     <string name="edit">Edit</string>
+    <string name="MCMetricStarter">5.08 cm Marble Size</string>
 </resources>
