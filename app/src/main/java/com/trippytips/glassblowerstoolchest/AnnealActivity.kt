@@ -21,6 +21,7 @@ import com.github.mikephil.charting.components.Description
 import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.Legend.LegendPosition.BELOW_CHART_CENTER
 import com.github.mikephil.charting.components.YAxis
+import com.github.mikephil.charting.data.DataSet
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
@@ -63,26 +64,21 @@ class AnnealActivity : AppCompatActivity() {
     var roomtemp: Float = 70F
     var glassCOE = 33
     var useStd = true
+    var units = "Standard"
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_anneal)
 
-        //Get the SharedPreferences
-        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
-        //Set the COE from SharedPreferences
-        val COE = prefs.getString("pref_coe", "33")
-        glassCOE = COE.toInt()
-        //Set the measurements to Standard or Metric
-        val stdmet = prefs.getBoolean("stdmet", true)
-        useStd = stdmet
-        if (!useStd) {
-            Toast.makeText(context, "The preferences are set to Metric.", Toast.LENGTH_LONG).show()
-        }
+        //Load the preferences
+        getSharedPrefs()
 
-        //Show a toast explaining future plans to testers :)
-        //Toast.makeText(this, "The load button is now selected automatically when you pick from the list.\nIt will be something else eventually.\nIgnore it for now :)",Toast.LENGTH_LONG).show()
+
+        //Set whether to display the data in Standard or Metric
+        useStd = units == "Standard"
+        Toast.makeText(context, "The preferences are set to $units.", Toast.LENGTH_LONG).show()
+
 
         //Import the schedule from Marble Calculator if applicable
         importSchedule()
@@ -101,6 +97,26 @@ class AnnealActivity : AppCompatActivity() {
         rvKilnSchedule.adapter = rvKilnScheduleAdapter(schedule)
 
 
+    }
+
+    //Load the values with Preferences
+    fun getSharedPrefs(){
+        //Get the SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        //Set the COE from SharedPreferences
+        val COE = prefs.getString("pref_coe", "33")
+        glassCOE = COE.toInt()
+        //Set the measurements to Standard or Metric
+        val stdmet = prefs.getBoolean("stdmet", true)
+        useStd = stdmet
+
+        if (!useStd) {
+            roomtemp = fToC(roomtemp.toDouble()).toFloat()
+            units = "Metric"
+        }else{
+            roomtemp = 70F
+            units = "Standard"
+        }
     }
 
     val context = this
@@ -185,8 +201,6 @@ class AnnealActivity : AppCompatActivity() {
                 hold5 = "-"
 
                 cv_Load.performClick()
-
-
             }
         }
     }
@@ -194,13 +208,23 @@ class AnnealActivity : AppCompatActivity() {
 
     //Import from Marble Calculator if Possible
     fun importSchedule() {
+        //Format Data For Display
+        val df = DecimalFormat("#.##")
+        df.roundingMode = RoundingMode.HALF_UP
+
         try {
             val bundle: Bundle? = intent.extras
             @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
             importThickness = bundle!!.getString("GlassThickness").toDouble()
-            thickness = importThickness.toString()
-            glassthickness = importThickness
-            name = "$thickness Inch Marble [COE $glassCOE]"
+            thickness = df.format(importThickness)
+            glassthickness = df.format(importThickness).toDouble()
+
+            if(!useStd){
+                name = df.format(thickness.toDouble()*2.54).toString() + " cm Marble [COE $glassCOE]"
+            }else{
+                name = "$thickness Inch Marble [COE $glassCOE]"
+            }
+
             calculateschedule()
             id = db.readData().size
             saveschedule()
@@ -213,19 +237,39 @@ class AnnealActivity : AppCompatActivity() {
 
     //Create a New Schedule
     fun newschedule(view: View) {
+        //Load the preferences
+        getSharedPrefs()
+
+        //Format Data For Display
+        val df = DecimalFormat("#.##")
+        df.roundingMode = RoundingMode.HALF_UP
+
         val spinner = findViewById<Spinner>(R.id.spin_Schedules)
         val dialog = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.new_schedule_dialog, null)
         val etnumber = dialogView.findViewById<EditText>(R.id.et_number_thickness)
         val etScheduleName = dialogView.findViewById<EditText>(R.id.etScheduleName)
 
+        useStd = units == "Standard"
+        if(!useStd){
+            etnumber.hint = "Enter Desired Thickness (cm)"
+        }
         dialog.setView(dialogView)
         dialog.setCancelable(false)
         dialog.setPositiveButton("Specify") { dialogInterface: DialogInterface, i: Int ->
             try {
-                val customThicknessString = etnumber.text.toString()
-                glassthickness = etnumber.text.toString().toDouble()
-                thickness = etnumber.text.toString()
+                val customThicknessString:String
+                if(!useStd){
+                    customThicknessString = df.format(etnumber.text.toString().toDouble() / 2.54)
+                    glassthickness = df.format(etnumber.text.toString().toDouble() / 2.54).toDouble()
+                    thickness = df.format(etnumber.text.toString().toDouble() / 2.54)
+                    units = "Metric"
+                }else {
+                    customThicknessString = etnumber.text.toString()
+                    glassthickness = etnumber.text.toString().toDouble()
+                    thickness = etnumber.text.toString()
+                    units = "Standard"
+                }
                 name = etScheduleName.text.toString()
                 Toast.makeText(
                     baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
@@ -258,7 +302,6 @@ class AnnealActivity : AppCompatActivity() {
 
         //Input Variables for Calculations
 
-        //val glassCOE = 33
         val AnnealCoursness = 250
 
         //Perform Calculations and assign them to vals
@@ -322,7 +365,7 @@ class AnnealActivity : AppCompatActivity() {
                 "FULL"
             }
 
-        degrees3 = "70"
+        degrees3 = df.format(roomtemp)
         hold3 = "0"
         ramp4 = "0"
         degrees4 = "0"
@@ -331,28 +374,81 @@ class AnnealActivity : AppCompatActivity() {
         degrees5 = "0"
         hold5 = "0"
 
+
+        //Set whether to display the data in Standard or Metric
+        useStd = units == "Standard"
+        Toast.makeText(context, "The preferences are set to $units.\n calculateSchedule()", Toast.LENGTH_LONG).show()
+
+
+
+        //If the preference is metric, and numeric convert the hold temps to metric
+        if(!useStd){
+            if (isNumeric(degrees1)){degrees1 = fToC(degrees1)}
+            try{if(degrees1.toDouble() < 0) {degrees1 = "0"}}catch (e: Exception){e.printStackTrace()}
+            if (isNumeric(degrees2)){degrees2 = fToC(degrees2)}
+            try{if(degrees2.toDouble() < 0) {degrees2 = "0"}}catch (e: Exception){e.printStackTrace()}
+            try{if (isNumeric(degrees3)){degrees3 = fToC(degrees3)}
+            if(degrees3.toDouble() < 0) {degrees3 = "0"}}catch (e: Exception){e.printStackTrace()}
+            try{if (isNumeric(degrees4)){degrees4 = fToC(degrees4)}
+            if(degrees4.toDouble() < 0) {degrees4 = "0"}}catch (e: Exception){e.printStackTrace()}
+            try{if (isNumeric(degrees5)){degrees5 = fToC(degrees5)}
+            if(degrees5.toDouble() < 0) {degrees5 = "0"}}catch (e: Exception){e.printStackTrace()}
+
+            //Convert the ramps
+            if (isNumeric(ramp1)){ramp1 = fRateToCRate(ramp1)}
+            try{if (ramp1.toDouble() < 0){ramp1 = "0"}}catch (e: Exception){e.printStackTrace()}
+            if (isNumeric(ramp2)){ramp2 = fRateToCRate(ramp2)}
+            try{if (ramp2.toDouble() < 0){ramp2 = "0"}}catch (e: Exception){e.printStackTrace()}
+            if (isNumeric(ramp3)){ramp3 = fRateToCRate(ramp3)}
+            try{if (ramp3.toDouble() < 0){ramp3 = "0"}}catch (e: Exception){e.printStackTrace()}
+            if (isNumeric(ramp4)){ramp4 = fRateToCRate(ramp4)}
+            try{if (ramp4.toDouble() < 0){ramp4 = "0"}}catch (e: Exception){e.printStackTrace()}
+            if (isNumeric(ramp5)){ramp5 = fRateToCRate(ramp5)}
+            try{if (ramp5.toDouble() < 0){ramp5 = "0"}}catch (e: Exception){e.printStackTrace()}
+        }
+
         schedule.clear()
+        if(!useStd) {
+            //C
+            schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°C 1", degrees1, "°"))
+            schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
 
-        schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
-        schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
-        schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
+            schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°C 2", degrees2, "°"))
+            schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
 
-        schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
-        schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
-        schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
+            schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°C 3", degrees3, "°"))
+            schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
 
-        schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
-        schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
-        schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
+            schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°C 4", degrees4, "°"))
+            schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+        } else {
+            //F
+            schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
+            schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
 
-        schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
-        schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
-        schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+            schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
+            schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
 
+            schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
+            schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
+
+            schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
+            schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
+            schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+        }
         rvKilnSchedule.adapter?.notifyDataSetChanged()
 
         //Generate the Chart
         generateChart()
+
+
     }
 
 
@@ -363,27 +459,47 @@ class AnnealActivity : AppCompatActivity() {
         try {
             ramp1.toFloat()
         } catch (e: NumberFormatException) {
-            ramp1 = "1798"
+            ramp1 = if(!useStd){
+                fRateToCRate("1798")
+            }else{
+                "1798"
+            }
         }
         try {
             ramp2.toFloat()
         } catch (e: NumberFormatException) {
-            ramp2 = "1798"
+            ramp2 = if(!useStd){
+                fRateToCRate("1798")
+            }else{
+                "1798"
+            }
         }
         try {
             ramp3.toFloat()
         } catch (e: NumberFormatException) {
-            ramp3 = "1798"
+            ramp3 = if(!useStd){
+                fRateToCRate("1798")
+            }else{
+                "1798"
+            }
         }
         try {
             ramp4.toFloat()
         } catch (e: NumberFormatException) {
-            ramp4 = "1798"
+            ramp4 = if(!useStd){
+                fRateToCRate("1798")
+            }else{
+                "1798"
+            }
         }
         try {
             ramp5.toFloat()
         } catch (e: NumberFormatException) {
-            ramp5 = "1798"
+            ramp5 = if(!useStd){
+                fRateToCRate("1798")
+            }else{
+                "1798"
+            }
         }
 
         //Assign the chart to lineChartView
@@ -431,8 +547,13 @@ class AnnealActivity : AppCompatActivity() {
         yAxisR.setEnabled(false)
         yAxisL.setTextColor(Color.WHITE)
         yAxisL.setAxisMinimum(0F)
-        yAxisL.setAxisMaximum(1700F)
-        yAxisL.setGranularity(500F)
+        if(!useStd){
+            yAxisL.setAxisMaximum(750F)
+            yAxisL.setGranularity(250F)
+        }else {
+            yAxisL.setAxisMaximum(1700F)
+            yAxisL.setGranularity(500F)
+        }
         yAxisL.setValueFormatter(YAxisValueFormatter())
 
         //Animations
@@ -465,8 +586,14 @@ class AnnealActivity : AppCompatActivity() {
         dataVals.add(Entry(chartx7, charty7))
 
         //Assign dataVals ArrayList and a name to the first line data set.
-        val lineDataSet1 = LineDataSet(dataVals, "Schedule Calculated for $glassthickness\" Thickness [COE $glassCOE]")
-
+        val lineDataSet1:LineDataSet
+        if(!useStd){
+            lineDataSet1 =
+                LineDataSet(dataVals, "Schedule Calculated for " + (glassthickness * 2.54).toString() + "cm Thickness [COE $glassCOE]")
+        }else {
+            lineDataSet1 =
+                LineDataSet(dataVals, "Schedule Calculated for $glassthickness\" Thickness [COE $glassCOE]")
+        }
 
         //Creata an ArrayList for the data sets and add the line data sets.
         val dataSets = ArrayList<ILineDataSet>()
@@ -503,15 +630,29 @@ class AnnealActivity : AppCompatActivity() {
         xAxisValues.add("xAxisValues8")
         xAxisValues.add("xAxisValues9")
         xAxisValues.add("xAxisValues10")
+
+    //Set the ramps back to FULL if need be
+    if (ramp1 == "1798"){ramp1 = "FULL"}
+    if (ramp2 == "1798"){ramp2 = "FULL"}
+    if (ramp3 == "1798"){ramp3 = "FULL"}
+    if (ramp4 == "1798"){ramp4 = "FULL"}
+    if (ramp5 == "1798"){ramp5 = "FULL"}
+
+    if (ramp1 == fRateToCRate("1798")){ramp1 = "FULL"}
+    if (ramp2 == fRateToCRate("1798")){ramp2 = "FULL"}
+    if (ramp3 == fRateToCRate("1798")){ramp3 = "FULL"}
+    if (ramp4 == fRateToCRate("1798")){ramp4 = "FULL"}
+    if (ramp5 == fRateToCRate("1798")){ramp5 = "FULL"}
+
     }
 
     //Format the Values for the X Axis
     class XAxisValueFormatter: IAxisValueFormatter {
 
-        val mFormat = DecimalFormat("###,###,##0")
+        val mFormat = DecimalFormat("###,###,###.0")
 
         override fun getFormattedValue(value: Float, axis: AxisBase?): String {
-            return mFormat.format(value) + "hr"
+            return mFormat.format(value) + " hr"
         }
 
     }
@@ -530,6 +671,10 @@ class AnnealActivity : AppCompatActivity() {
 
     //Save the data to the Database
     fun saveschedule() {
+
+        //Set whether to display the data in Standard or Metric
+        useStd = units == "Standard"
+        Toast.makeText(context, "The preferences are set to $units.", Toast.LENGTH_LONG).show()
 
         var dbschedule = Ks(
             id,
@@ -550,7 +695,8 @@ class AnnealActivity : AppCompatActivity() {
             ramp5,
             degrees5,
             hold5,
-            glassCOE
+            glassCOE,
+            units
         )
         //db.deleteData()
         db.insertData(dbschedule)
@@ -600,6 +746,7 @@ class AnnealActivity : AppCompatActivity() {
             degrees5 = data.get(i).step14
             hold5 = data.get(i).step15
             glassCOE = data.get(i).coe
+            units = data.get(i).units
             //Update the DB with the new information
             var editschedule = Ks(
                 id,
@@ -620,7 +767,8 @@ class AnnealActivity : AppCompatActivity() {
                 ramp5,
                 degrees5,
                 hold5,
-                glassCOE
+                glassCOE,
+                units
             )
             db.updateData(editschedule)
         }
@@ -649,7 +797,8 @@ class AnnealActivity : AppCompatActivity() {
             ramp5,
             degrees5,
             hold5,
-            glassCOE
+            glassCOE,
+            units
         )
         db.deleteSelected(dbschedule)
         db.close()
@@ -723,6 +872,11 @@ class AnnealActivity : AppCompatActivity() {
             degrees5 = data.get(idSelected).step14
             hold5 = data.get(idSelected).step15
             glassCOE = data.get(idSelected).coe
+            units = data.get(idSelected).units
+
+            //Set whether to display the data in Standard or Metric
+            useStd = units == "Standard"
+
             generateChart()
 
         } else {
@@ -759,22 +913,41 @@ class AnnealActivity : AppCompatActivity() {
             schedule.clear()
 
             //Add the new information in to the recyclerview
-            schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
-            schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
+            if (!useStd){
 
-            schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
-            schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
+                schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°C 1", degrees1, "°"))
+                schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
 
-            schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
-            schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
+                schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°C 2", degrees2, "°"))
+                schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
 
-            schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
-            schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
-            schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+                schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°C 3", degrees3, "°"))
+                schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
 
+                schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°C 4", degrees4, "°"))
+                schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+
+            } else {
+                schedule.add(rvKilnScheduleStep("RA1", ramp1, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°F 1", degrees1, "°"))
+                schedule.add(rvKilnScheduleStep("HLD1", hold1, "minutes"))
+
+                schedule.add(rvKilnScheduleStep("RA2", ramp2, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°F 2", degrees2, "°"))
+                schedule.add(rvKilnScheduleStep("HLD2", hold2, "minutes"))
+
+                schedule.add(rvKilnScheduleStep("RA3", ramp3, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°F 3", degrees3, "°"))
+                schedule.add(rvKilnScheduleStep("HLD3", hold3, "minutes"))
+
+                schedule.add(rvKilnScheduleStep("RA4", ramp4, "°/Hour"))
+                schedule.add(rvKilnScheduleStep("°F 4", degrees4, "°"))
+                schedule.add(rvKilnScheduleStep("HLD4", hold4, "minutes"))
+            }
             //tell the recyclerview adapter that the data has changed and needs to be refreshed.
             rvKilnSchedule.adapter?.notifyDataSetChanged()
 
@@ -869,5 +1042,26 @@ class AnnealActivity : AppCompatActivity() {
 
     }
 
+    //Convert Temps between Metric and Standard
+    fun cToF(c: Double) = (9/5.0 * c) + 32
+    fun fToC(f: Double) = 5/9.0 * (f - 32)
+    fun cToF(c: String) = Math.round(cToF(c.toDouble())).toString()
+    fun fToC(f: String) = Math.round(fToC(f.toDouble())).toString()
+
+    //Convert Temp Change Rates between Metric and Standard
+    fun fRateToCRate(f: Double) = f / (9/5.0)
+    fun fRateToCRate(f: String) = Math.round(fRateToCRate(f.toDouble())).toString()
+    fun cRateToFRate(c: String) = Math.round(cRateToFRate(c.toDouble())).toString()
+    fun cRateToFRate(c: Double) = c * (9/5.0)
+
+
+    fun isNumeric(s: String): Boolean {
+        try {
+            s.toDouble()
+        } catch (e: Exception) {
+            return false
+        }
+        return true
+    }
 }
 

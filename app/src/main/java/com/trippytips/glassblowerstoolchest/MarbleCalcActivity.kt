@@ -37,6 +37,8 @@ class MarbleCalcActivity : AppCompatActivity() {
     var thickness = ""
     var useStd = true
     var glassCOE = 33
+    var customMetricMSize = 0.00
+    var isCustom = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -104,10 +106,11 @@ class MarbleCalcActivity : AppCompatActivity() {
         //Tell the Marble Slider what to do when it is changed.
         marbleslider.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener{
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-            val formatProgress  = progress.toDouble() / 10
+            var formatProgress  = progress.toDouble() / 10
 
             if (!useStd){
-                marblevalue.text = df.format((formatProgress * 2.54)) + " cm Marble Size"
+                formatProgress *= 2.54
+                marblevalue.text = df.format((formatProgress)) + " cm Marble Size"
             }else {
                 marblevalue.text = formatProgress.toString() + " inch Marble Size"
             }
@@ -160,7 +163,7 @@ class MarbleCalcActivity : AppCompatActivity() {
 
             //Set up the decimal formatter
             val df = DecimalFormat("#.##")
-            df.roundingMode = RoundingMode.HALF_UP
+            df.roundingMode = RoundingMode.CEILING
 
             //Change the custom diameter hint if preferences are set to metric
             if(!useStd){
@@ -177,18 +180,27 @@ class MarbleCalcActivity : AppCompatActivity() {
                 //Get the diameter from the dialog if one is specified.
                 try {
                     if(!useStd){
-                        customMarbleDiameterString = df.format(etnumber.text.toString().toDouble() / 2.54).toString()
-                        customMarbleDiameterInt = df.format(etnumber.text.toString().toDouble() / 2.54).toDouble()
+                        customMarbleDiameterString = etnumber.text.toString()
+                        customMarbleDiameterInt = etnumber.text.toString().toDouble()
                         Toast.makeText(baseContext,"Custom Marble Diameter is now $customMarbleDiameterString centimeters",Toast.LENGTH_SHORT).show()
+                        customMetricMSize = etnumber.text.toString().toDouble()
+                        isCustom = true
+                        //sb_MarbleSlider.max = (customMarbleDiameterInt * 10).toInt()
+                        //sb_MarbleSlider.progress = (customMarbleDiameterInt * 10).toInt()
+                        marblecalculations.clear()
+                        loadData()
+
                     }else{
                         customMarbleDiameterString = etnumber.text.toString()
                         customMarbleDiameterInt = etnumber.text.toString().toDouble()
                         Toast.makeText(baseContext,"Custom Marble Diameter is now $customMarbleDiameterString inches",Toast.LENGTH_SHORT).show()
+                        sb_MarbleSlider.max = (customMarbleDiameterInt * 10).toInt()
+                        sb_MarbleSlider.progress = (customMarbleDiameterInt * 10).toInt()
                     }
 
+                    rvCalculationResults.adapter?.notifyDataSetChanged()
+                    isCustom = false
 
-                    sb_MarbleSlider.max = (customMarbleDiameterInt * 10).toInt()
-                    sb_MarbleSlider.progress = (customMarbleDiameterInt * 10).toInt()
 
                 //If No Value is Specified, Tell the user to Enter One.
                 }catch (e:Exception){
@@ -236,7 +248,13 @@ class MarbleCalcActivity : AppCompatActivity() {
         val rodSizeList = arrayOf(3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 12.7, 13.0, 14.0, 15.0, 15.9, 16.0, 18.0, 19.0, 20.0, 22.0, 24.0, 25.4, 26.0, 28.0, 30.0, 31.7, 38.0, 44.0)
 
         //Calculate the Standard & Metric information derived from the Marble & Rod size entered by the user.
-        val marbleRadiusMetric = sb_MarbleSlider.progress.toDouble().div(20) * 25.4 //sb_MarbleSlider has a range of 1-100 and must be divided by 10 to get increments between .25 and 10.  Divide in half to get the proper radius (Thus .div(20))
+        val marbleRadiusMetric = if(isCustom){
+            (customMetricMSize * 10 / 2)
+        }else{
+            //sb_MarbleSlider has a range of 1-100 and must be divided by 10 to get increments between .25 and 10.  Divide in half to get the proper radius (Thus .div(20))
+            sb_MarbleSlider.progress.toDouble().div(20) * 25.4 //og
+        }
+
         val rodRadiusMetric =rodSizeList[sb_RodSlider.progress] / 2.0
         val marbleVolumeMetric = (Math.pow(marbleRadiusMetric, 3.00) * 4/3 * Math.PI) //mm^3
         val marbleVolumeStandard = marbleVolumeMetric / 16387.064
@@ -249,7 +267,12 @@ class MarbleCalcActivity : AppCompatActivity() {
         df.roundingMode = RoundingMode.HALF_UP
 
         //Make string outputs of calculations
-        val marblesize = (sb_MarbleSlider.progress / 10.000).toString()
+        val marblesize = if(isCustom){
+            (customMetricMSize / 2.54).toString()
+        }else{
+            (sb_MarbleSlider.progress / 10.000).toString()
+        }
+
         thickness = marblesize
         val rodsize =  rodSizeList[sb_RodSlider.progress].toString()
         val strLengthNeededFeet = df.format(lengthNeededFeet).toString()
