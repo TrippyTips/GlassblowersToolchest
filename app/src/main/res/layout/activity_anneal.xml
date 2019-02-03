@@ -25,6 +25,8 @@
             android:id="@+id/spin_Schedules"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="@color/ic_launcher_background"
+            android:padding="1dp"
             app:layout_constraintBottom_toTopOf="@+id/rvKilnSchedule"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

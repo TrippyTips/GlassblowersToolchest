@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_margin="5dp"
+        android:layout_margin="2dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -39,7 +39,7 @@
             <TextView
                 android:id="@+id/DerivedInfo"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:gravity="end"
                 android:padding="8dp"
                 android:text="@string/calculation"
@@ -61,13 +61,13 @@
 
             <TextView
                 android:id="@+id/KeyInfo"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:padding="8dp"
                 android:text="@string/key"
                 android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                android:textSize="20sp"
+                android:textSize="15dp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -77,7 +77,7 @@
             <android.support.constraint.Guideline
                 android:id="@+id/guideline2"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:orientation="vertical"
                 app:layout_constraintGuide_begin="100dp" />
 
