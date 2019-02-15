@@ -87,8 +87,8 @@ class AnnealActivity : AppCompatActivity() {
         generateSpinner()
 
 
-        cv_Load.performClick()
-
+        //cv_Load.performClick()
+        loadSchedule()
 
         //Send the Data to be Displayed in the RecyclerView
         val recyclerView = findViewById<RecyclerView>(R.id.rvKilnSchedule)
@@ -174,7 +174,8 @@ class AnnealActivity : AppCompatActivity() {
                 degrees5 = "-"
                 hold5 = "-"
                 spinnerSize = 0
-                cv_Load.performClick()
+                //cv_Load.performClick()
+                loadSchedule()
             }
 
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -200,7 +201,8 @@ class AnnealActivity : AppCompatActivity() {
                 degrees5 = "-"
                 hold5 = "-"
 
-                cv_Load.performClick()
+//                cv_Load.performClick()
+                loadSchedule()
             }
         }
     }
@@ -809,13 +811,13 @@ class AnnealActivity : AppCompatActivity() {
 
         //Refresh the spinner and load the selected schedule to the Recyclerview
         generateSpinner()
-        cv_Load.performClick()
-
+        //cv_Load.performClick()
+        loadSchedule()
     }
 
 
     //Load a previously saved schedule if one exists
-    fun loadSchedule(view: View) {
+    fun loadSchedule() {
         //Load the Database
         var data = db.readData()
 
@@ -953,7 +955,7 @@ class AnnealActivity : AppCompatActivity() {
 
             //Close the database
             db.close()
-                       }
+    }
 
 
     //Share the currently selected schedule
