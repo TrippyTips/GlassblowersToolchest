@@ -141,18 +141,26 @@ class CertificateActivity : AppCompatActivity() {
 
 
         //Assign a value to Formatted Certificate
-        val htmlTable = "<style type=\"text/css\">\n" +
-                ".tg  {border-collapse:collapse;border-spacing:0;border-color:#ccc;}\n" +
-                ".tg td{font-family:Arial, sans-serif;font-size:14px;padding:14px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#fff;}\n" +
-                ".tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:14px 20px;border-style:solid;border-width:1px;overflow:hidden;word-break:normal;border-color:#ccc;color:#333;background-color:#f0f0f0;}\n" +
-                ".tg .tg-ts09{background-color:#cccccc;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
-                ".tg .tg-2be4{font-size:20px;font-family:Impact, Charcoal, sans-serif !important;;background-color:#c0c0c0;border-color:#c0c0c0;text-align:center;vertical-align:top}\n" +
-                ".tg .tg-pnhl{background-color:#c0c0c0;border-color:#c0c0c0;text-align:left;vertical-align:top}\n" +
-                ".tg .tg-5b55{background-color:#9b9b9b;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
-                ".tg .tg-e20j{background-color:#9b9b9b;color:#000000;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
+        val htmlTable = "<html>" +
+                "<body>" +
+                "<center>" +
+                "<style type=\"text/css\">\n" +
+                ".tg  {border-collapse:collapse;border-spacing:1;border-color:#80c0c0c0;}\n" +
+                ".tg td{font-family:Arial, sans-serif;font-size:14px;padding:14px 20px;overflow:hidden;word-break:normal;color:#333;background-color:#fff;}\n" +
+                //Top/Side Block Style
+                ".tg th{font-family:Arial, sans-serif;font-size:14px;font-weight:normal;padding:14px 20px;overflow:hidden;word-break:normal}\n" +
+                //Signature Style
+                ".tg .tg-ts09{background-color:#e5e5e5;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
+                //By Style
+                ".tg .tg-2be4{font-size:20px;font-family:Impact, Charcoal, sans-serif !important;;background-color:#80c0c0c0;border-color:#80c0c0c0;text-align:center;vertical-align:top}\n" +
+                ".tg .tg-pnhl{background-color:#80c0c0c0;border-color:#80c0c0c0;text-align:left;vertical-align:top}\n" +
+    //            ".tg .tg-5b55{background-color:#809b9b9b;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
+//                ".tg .tg-e20j{background-color:#809b9b9b;color:#000000;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
+                //Title style
                 ".tg .tg-gl8g{font-weight:bold;font-size:22px;font-family:\"Times New Roman\", Times, serif !important;;background-color:#e5e5e5;border-color:#656565;text-align:center;vertical-align:top}\n" +
-                ".tg .tg-wtjf{font-weight:bold;font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
-                ".tg .tg-waxd{font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:right;vertical-align:top}\n" +
+//                ".tg .tg-wtjf{font-weight:bold;font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
+//                ".tg .tg-waxd{font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:right;vertical-align:top}\n" +
+                ".tg{background:url(file:///android_asset/Golden1.png);background-repeat:no-repeat;background-size:100% 100%;}" +
                 "</style>\n" +
                 "<table class=\"tg\">\n" +
                 "  <tr>\n" +
@@ -202,9 +210,11 @@ class CertificateActivity : AppCompatActivity() {
                 "    <td class=\"tg-pnhl\" colspan=\"2\"></td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-5b55\" colspan=\"4\"></td>\n" +
+                "    <th class=\"tg-e20j\" colspan=\"4\"></td>\n" +
                 "  </tr>\n" +
-                "</table>"
+                "</table>" +
+                "</body>" +
+                "</html>"
 
         //Load the data in to webView
         webView.loadDataWithBaseURL(null, htmlTable, "text/HTML", "UTF-8", null)
