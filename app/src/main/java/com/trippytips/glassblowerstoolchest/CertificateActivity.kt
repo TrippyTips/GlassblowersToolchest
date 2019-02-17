@@ -6,11 +6,10 @@ import android.os.Build
 import android.os.Bundle
 import android.print.PrintAttributes
 import android.print.PrintManager
-import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.webkit.WebResourceRequest
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_certificate.*
 
@@ -18,24 +17,12 @@ class CertificateActivity : AppCompatActivity() {
 
     private var myWebView: WebView? = null
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_certificate)
 
         //When the Generate Button is Clicked
         btnCertGenerate.setOnClickListener {
-
-            //Set values to what is written in the EditTexts
-            val Title = etCertTitle.text.toString()
-            val Artist = etCertName.text.toString()
-            val Date = etCertDateCreated.text.toString()
-            val Size = etCertSize.text.toString()
-            val Weight = etCertWeight.text.toString()
-            val Technique = etCertTechnique.text.toString()
-            val SignatureReadsAs = etCertSignatureReadsAs.text.toString()
-            val OGOwner = etOriginalOwner.text.toString()
-
 
             //Call the printWebView Function or explain why
             // it cannot be called to users without compatible Android Versions
@@ -103,7 +90,7 @@ class CertificateActivity : AppCompatActivity() {
 
          //If the user has a version older than Android N
         }else{
-            Toast.makeText(this, "This feature requires a newer version of Android.\nA more compatible version is under Development.", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "This feature requires a newer version of Android.\nPlease Enter the Date Manually.", Toast.LENGTH_LONG).show()
         }
     }
 
@@ -152,9 +139,8 @@ class CertificateActivity : AppCompatActivity() {
                 //Signature Style
                 ".tg .tg-ts09{background-color:#e5e5e5;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
                 //By Style
-                ".tg .tg-2be4{font-size:20px;font-family:Impact, Charcoal, sans-serif !important;;background-color:#80c0c0c0;border-color:#80c0c0c0;text-align:center;vertical-align:top}\n" +
-                ".tg .tg-pnhl{background-color:#80c0c0c0;border-color:#80c0c0c0;text-align:left;vertical-align:top}\n" +
-    //            ".tg .tg-5b55{background-color:#809b9b9b;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
+                ".tg .tg-2be4{font-size:20px;font-family:Impact, Charcoal, sans-serif !important;;background-color:#c0c0c0;border-color:#80c0c0c0;text-align:center;vertical-align:top}\n" +
+//                ".tg .tg-pnhl{background-color:#80c0c0c0;border-color:#80c0c0c0;text-align:left;vertical-align:top}\n" + //            ".tg .tg-5b55{background-color:#809b9b9b;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
 //                ".tg .tg-e20j{background-color:#809b9b9b;color:#000000;border-color:#9b9b9b;text-align:left;vertical-align:top}\n" +
                 //Title style
                 ".tg .tg-gl8g{font-weight:bold;font-size:22px;font-family:\"Times New Roman\", Times, serif !important;;background-color:#e5e5e5;border-color:#656565;text-align:center;vertical-align:top}\n" +
@@ -241,9 +227,13 @@ class CertificateActivity : AppCompatActivity() {
             //Print
             printManager.print(jobName, printAdapter, PrintAttributes.Builder().build())
 
-        //Show the User that they cannot print due to an Android version of M or Lower
+        //Show the content in a webview for users with Android Lollipop or lower
         }else{
-            Toast.makeText(this, "This feature requires a newer version of Android.\nA more compatible version is under Development.", Toast.LENGTH_LONG).show()
+            try{
+                setContentView(myWebView)
+            }catch (e: Exception){
+                Toast.makeText(this, "Please Upgrade Your Android Version to Use this Feature.\n$e",Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
