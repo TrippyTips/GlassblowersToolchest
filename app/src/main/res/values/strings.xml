@@ -121,4 +121,9 @@
     <string name="certificate_name">Certificate Name</string>
     <string name="edit">Edit</string>
     <string name="MCMetricStarter">5.08 cm Marble Size</string>
+    <string name="garage">Garage</string>
+    <string name="strike">Strike</string>
+    <string name="anneal_hint">The thickness entered should be doubled if the widest cross section is flat and rests on
+        the kiln floor.
+    </string>
 </resources>

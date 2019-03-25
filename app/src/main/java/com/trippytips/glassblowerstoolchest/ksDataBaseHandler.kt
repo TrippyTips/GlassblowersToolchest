@@ -73,8 +73,8 @@ class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABA
         var result = db.insert(TABLE_NAME,null,cv)
         if(result == (-1).toLong())
             Toast.makeText(context,"FAIL!",Toast.LENGTH_SHORT).show()
-        else
-            Toast.makeText(context,"Success!",Toast.LENGTH_SHORT).show()
+        //else
+            //Toast.makeText(context,"Success!",Toast.LENGTH_SHORT).show()
 
     }
 
@@ -104,7 +104,7 @@ class ksDataBaseHandler(var context: Context) : SQLiteOpenHelper(context, DATABA
         var result = db.update(TABLE_NAME, cv, "ID = ?", arrayOf(ks.id.toString()))
 
         if(result > 0)
-            Toast.makeText(context,"Updated Successfully!",Toast.LENGTH_LONG).show()
+            //Toast.makeText(context,"Updated Successfully!",Toast.LENGTH_LONG).show()
         else
             Toast.makeText(context,"Update FAILED!",Toast.LENGTH_LONG).show()
 

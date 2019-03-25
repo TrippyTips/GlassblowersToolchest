@@ -65,7 +65,8 @@ class AnnealActivity : AppCompatActivity() {
     var glassCOE = 33
     var useStd = true
     var units = "Standard"
-
+    var strikeSchedule = false
+    var garageSchedule = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,7 +78,7 @@ class AnnealActivity : AppCompatActivity() {
 
         //Set whether to display the data in Standard or Metric
         useStd = units == "Standard"
-        Toast.makeText(context, "The preferences are set to $units.", Toast.LENGTH_LONG).show()
+        //Toast.makeText(context, "The preferences are set to $units.", Toast.LENGTH_LONG).show()
 
 
         //Import the schedule from Marble Calculator if applicable
@@ -251,6 +252,8 @@ class AnnealActivity : AppCompatActivity() {
         val dialogView = layoutInflater.inflate(R.layout.new_schedule_dialog, null)
         val etnumber = dialogView.findViewById<EditText>(R.id.et_number_thickness)
         val etScheduleName = dialogView.findViewById<EditText>(R.id.etScheduleName)
+        val strike = dialogView.findViewById<CheckBox>(R.id.chkStrike)
+        val garage = dialogView.findViewById<CheckBox>(R.id.chkGarage)
 
         useStd = units == "Standard"
         if(!useStd){
@@ -273,9 +276,14 @@ class AnnealActivity : AppCompatActivity() {
                     units = "Standard"
                 }
                 name = etScheduleName.text.toString()
+                garageSchedule = garage.isChecked
+                strikeSchedule = strike.isChecked
+
                 Toast.makeText(
                     baseContext, "Custom Marble Diameter is now $customThicknessString\n" +
-                            "Name of Schedule is now $name", Toast.LENGTH_LONG
+                            "Name of Schedule is now $name\n" +
+                            "Strike = $strikeSchedule\n" +
+                            "Garage = $garageSchedule", Toast.LENGTH_LONG
                 ).show()
                 calculateschedule()
                 if (spinnerSize >= db.readData().size) {
@@ -379,7 +387,7 @@ class AnnealActivity : AppCompatActivity() {
 
         //Set whether to display the data in Standard or Metric
         useStd = units == "Standard"
-        Toast.makeText(context, "The preferences are set to $units.\n calculateSchedule()", Toast.LENGTH_LONG).show()
+        //Toast.makeText(context, "The preferences are set to $units.\n calculateSchedule()", Toast.LENGTH_LONG).show()
 
 
 
@@ -407,6 +415,25 @@ class AnnealActivity : AppCompatActivity() {
             try{if (ramp4.toDouble() < 0){ramp4 = "0"}}catch (e: Exception){e.printStackTrace()}
             if (isNumeric(ramp5)){ramp5 = fRateToCRate(ramp5)}
             try{if (ramp5.toDouble() < 0){ramp5 = "0"}}catch (e: Exception){e.printStackTrace()}
+        }
+
+        //Apply the garage modifier
+        if(garageSchedule){
+            hold5 = hold4
+            hold4 = hold3
+            hold3 = hold2
+            hold2 = hold1
+            hold1 = "99.59"
+
+            degrees5 = degrees4
+            degrees4 = degrees3
+            degrees3 = degrees2
+            degrees2 = degrees1
+
+            ramp5 = ramp4
+            ramp4 = ramp3
+            ramp3 = ramp2
+            ramp2 = "FULL"
         }
 
         schedule.clear()
@@ -457,6 +484,27 @@ class AnnealActivity : AppCompatActivity() {
     //Generate a chart to represent the schedule
     @Suppress("UsePropertyAccessSyntax")
     fun generateChart() {
+
+        //negate garage modifier if present and reset value to false
+ /*       if(garageSchedule){
+            hold1 = hold2
+            hold2 = hold3
+            hold3 = hold4
+            hold4 = hold5
+
+            degrees1 = degrees2
+            degrees2 = degrees3
+            degrees3 = degrees4
+            degrees4 = degrees5
+
+            ramp1 = ramp2
+            ramp2 = ramp3
+            ramp3 = ramp4
+            ramp4 = ramp5
+
+            garageSchedule = false
+        }
+*/
         //If the ramps are set to "FULL" change them to "1798"
         try {
             ramp1.toFloat()
@@ -563,30 +611,58 @@ class AnnealActivity : AppCompatActivity() {
         lineChartView.animateY(3500, Easing.EasingOption.EaseOutBounce)
 
         //Calculate the coordinates and assign them to vals
-        val chartx1 = 0F
-        val charty1 = roomtemp
-        val chartx2 = ((60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1)) / 60F
-        val charty2 = degrees1.toFloat()
-        val chartx3 = chartx2 + (hold1.toFloat() / 60F)
-        val charty3 = degrees1.toFloat()
-        val chartx4 = chartx3 + (((60 / ramp2.toFloat()) * (charty3 - degrees2.toFloat())) / 60F)
-        val charty4 = degrees2.toFloat()
-        val chartx5 = chartx4 + (hold2.toFloat() / 60F)
-        val charty5 = degrees2.toFloat()
-        val chartx6 = chartx5 + (((60 / ramp3.toFloat()) * (charty5 - degrees3.toFloat())) / 60F)
-        val charty6 = roomtemp
-        val chartx7 = chartx6 //placeholder for now
-        val charty7 = charty6 //placeholder for now
+        if(hold3 != "0") {
+            //Plots based on garage modifier
+            val chartx1 = 0F
+            val charty1 = roomtemp
+            val chartx2 = ((60 / ramp2.toFloat()) * (degrees2.toFloat() - charty1)) / 60F
+            val charty2 = degrees2.toFloat()
+            val chartx3 = chartx2 + (hold2.toFloat() / 60F)
+            val charty3 = degrees2.toFloat()
+            val chartx4 = chartx3 + (((60 / ramp3.toFloat()) * (charty3 - degrees3.toFloat())) / 60F)
+            val charty4 = degrees3.toFloat()
+            val chartx5 = chartx4 + (hold3.toFloat() / 60F)
+            val charty5 = degrees3.toFloat()
+            val chartx6 = chartx5 + (((60 / ramp4.toFloat()) * (charty5 - degrees4.toFloat())) / 60F)
+            val charty6 = roomtemp
+            val chartx7 = chartx6 //placeholder for now
+            val charty7 = charty6 //placeholder for now
 
-        //Add the coordinates to the dataVals ArrayList
-        dataVals.add(Entry(chartx1, charty1))
-        dataVals.add(Entry(chartx2, charty2))
-        dataVals.add(Entry(chartx3, charty3))
-        dataVals.add(Entry(chartx4, charty4))
-        dataVals.add(Entry(chartx5, charty5))
-        dataVals.add(Entry(chartx6, charty6))
-        dataVals.add(Entry(chartx7, charty7))
+            //Add the coordinates to the dataVals ArrayList
+            dataVals.add(Entry(chartx1, charty1))
+            dataVals.add(Entry(chartx2, charty2))
+            dataVals.add(Entry(chartx3, charty3))
+            dataVals.add(Entry(chartx4, charty4))
+            dataVals.add(Entry(chartx5, charty5))
+            dataVals.add(Entry(chartx6, charty6))
+            dataVals.add(Entry(chartx7, charty7))
+            garageSchedule = false
+        }else{
+            //Plots based on no modifiers selected
+            val chartx1 = 0F
+            val charty1 = roomtemp
+            val chartx2 = ((60 / ramp1.toFloat()) * (degrees1.toFloat() - charty1)) / 60F
+            val charty2 = degrees1.toFloat()
+            val chartx3 = chartx2 + (hold1.toFloat() / 60F)
+            val charty3 = degrees1.toFloat()
+            val chartx4 = chartx3 + (((60 / ramp2.toFloat()) * (charty3 - degrees2.toFloat())) / 60F)
+            val charty4 = degrees2.toFloat()
+            val chartx5 = chartx4 + (hold2.toFloat() / 60F)
+            val charty5 = degrees2.toFloat()
+            val chartx6 = chartx5 + (((60 / ramp3.toFloat()) * (charty5 - degrees3.toFloat())) / 60F)
+            val charty6 = roomtemp
+            val chartx7 = chartx6 //placeholder for now
+            val charty7 = charty6 //placeholder for now
 
+            //Add the coordinates to the dataVals ArrayList
+            dataVals.add(Entry(chartx1, charty1))
+            dataVals.add(Entry(chartx2, charty2))
+            dataVals.add(Entry(chartx3, charty3))
+            dataVals.add(Entry(chartx4, charty4))
+            dataVals.add(Entry(chartx5, charty5))
+            dataVals.add(Entry(chartx6, charty6))
+            dataVals.add(Entry(chartx7, charty7))
+        }
         //Assign dataVals ArrayList and a name to the first line data set.
         val lineDataSet1:LineDataSet
         if(!useStd){
@@ -676,7 +752,7 @@ class AnnealActivity : AppCompatActivity() {
 
         //Set whether to display the data in Standard or Metric
         useStd = units == "Standard"
-        Toast.makeText(context, "The preferences are set to $units.", Toast.LENGTH_LONG).show()
+        //Toast.makeText(context, "The preferences are set to $units.", Toast.LENGTH_LONG).show()
 
         var dbschedule = Ks(
             id,
