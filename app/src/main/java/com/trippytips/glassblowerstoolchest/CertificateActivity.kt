@@ -7,20 +7,25 @@ import android.os.Bundle
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Spinner
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_certificate.*
+import java.text.FieldPosition
 
 class CertificateActivity : AppCompatActivity() {
-
+    lateinit var spinner: Spinner
     private var myWebView: WebView? = null
-
+    var selectedBG = "1"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_certificate)
-
+        getBG()
         //When the Generate Button is Clicked
         btnCertGenerate.setOnClickListener {
 
@@ -65,6 +70,39 @@ class CertificateActivity : AppCompatActivity() {
 
     }
     */
+    fun getBG(){
+        //Set up Background Spinner
+        try {
+            val bgselect = arrayOf("Rounded Rainbow Border", "Copper Border", "Gold Border", "Rainbow Border")
+            spinner = findViewById(R.id.spCertBG)
+            val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, bgselect)
+            adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            spinner.adapter = adapter
+            spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener, AdapterView.OnItemClickListener {
+                override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    //
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                    //Nothing selected
+                }
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    when (position){
+                        0 -> selectedBG = "Background.png"
+                        1 -> selectedBG = "Background1.png"
+                        2 -> selectedBG = "Background2.png"
+                        3 -> selectedBG = "Background3.png"
+                        else -> selectedBG = "Background.png"
+                    }
+                    //A Toast to aid in Development
+                    //Toast.makeText(this@CertificateActivity, "Item Selected " + selectedBG, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }catch (e: Exception){
+            Toast.makeText(this, e.toString(),Toast.LENGTH_SHORT).show()
+        }
+    }
 
     //Get the date when called.
     fun getDate() {
@@ -146,7 +184,7 @@ class CertificateActivity : AppCompatActivity() {
                 ".tg .tg-gl8g{font-weight:bold;font-size:22px;font-family:\"Times New Roman\", Times, serif !important;;background-color:#e5e5e5;border-color:#656565;text-align:center;vertical-align:top}\n" +
 //                ".tg .tg-wtjf{font-weight:bold;font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:left;vertical-align:top}\n" +
 //                ".tg .tg-waxd{font-family:Georgia, serif !important;;background-color:#cccccc;border-color:#cccccc;text-align:right;vertical-align:top}\n" +
-                ".tg{background:url(file:///android_asset/Golden1.png);background-repeat:no-repeat;background-size:100% 100%;}" +
+                ".tg{background:url(file:///android_asset/" + selectedBG + ");background-repeat:no-repeat;background-size:100% 100%;}" +
                 "</style>\n" +
                 "<table class=\"tg\">\n" +
                 "  <tr>\n" +

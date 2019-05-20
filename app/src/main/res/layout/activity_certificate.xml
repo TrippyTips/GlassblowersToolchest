@@ -177,10 +177,23 @@
             android:hint="@string/certOriginalOwner"
             android:importantForAutofill="no"
             android:inputType="textPersonName"
-            app:layout_constraintEnd_toEndOf="@+id/btnCertGenerate"
-            app:layout_constraintStart_toStartOf="@+id/btnCertGenerate"
+            app:layout_constraintEnd_toEndOf="@+id/spCertBG"
+            app:layout_constraintStart_toStartOf="@+id/spCertBG"
             app:layout_constraintTop_toBottomOf="@+id/etCertSignatureReadsAs"
             tools:ignore="UnusedAttribute" />
+
+        <Spinner
+            android:id="@+id/spCertBG"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginRight="8dp"
+            app:layout_constraintEnd_toEndOf="@+id/btnCertGenerate"
+            app:layout_constraintStart_toStartOf="@+id/btnCertGenerate"
+            app:layout_constraintTop_toBottomOf="@+id/etOriginalOwner" />
 
         <Button
             android:id="@+id/btnCertGenerate"
@@ -209,6 +222,7 @@
             app:layout_constraintStart_toEndOf="@+id/etCertDateCreated"
             app:layout_constraintTop_toTopOf="@+id/etCertDateCreated" />
 
+
         <android.support.constraint.Barrier
             android:id="@+id/barrier2"
             android:layout_width="wrap_content"
@@ -216,6 +230,8 @@
             app:barrierDirection="left"
             app:layout_constraintEnd_toEndOf="@+id/tv_COAGenerator"
             app:layout_constraintStart_toStartOf="@+id/tv_COAGenerator" />
+
+
     </android.support.constraint.ConstraintLayout>
 
 </android.widget.RelativeLayout>
