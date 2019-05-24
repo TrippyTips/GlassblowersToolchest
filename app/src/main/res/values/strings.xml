@@ -126,4 +126,5 @@
     <string name="anneal_hint">The thickness entered should be doubled if the widest cross section is flat and rests on
         the kiln floor.
     </string>
+    <string name="Location">Location</string>
 </resources>

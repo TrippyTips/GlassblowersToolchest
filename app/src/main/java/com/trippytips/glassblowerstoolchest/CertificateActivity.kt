@@ -4,6 +4,7 @@ import android.content.Context
 import android.icu.util.Calendar
 import android.os.Build
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.print.PrintAttributes
 import android.print.PrintManager
 import android.support.v7.app.AppCompatActivity
@@ -22,10 +23,13 @@ class CertificateActivity : AppCompatActivity() {
     lateinit var spinner: Spinner
     private var myWebView: WebView? = null
     var selectedBG = "1"
+    var artist = ""
+    var location = ""
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_certificate)
         getBG()
+        getSharedPrefs()
         //When the Generate Button is Clicked
         btnCertGenerate.setOnClickListener {
 
@@ -70,6 +74,19 @@ class CertificateActivity : AppCompatActivity() {
 
     }
     */
+    //Load the values with Preferences
+    fun getSharedPrefs(){
+        //Get the SharedPreferences
+        val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+        //Set the COE from SharedPreferences
+        val pref_location = prefs.getString("location", "")
+        if (pref_location != null){location = pref_location}
+        //Set the measurements to Standard or Metric
+        val pref_artist = prefs.getString("artist", "")
+        if (pref_artist != null){artist = pref_artist}
+        etCertName.setText(artist)
+        etOriginalOwner.setText(location)
+    }
     fun getBG(){
         //Set up Background Spinner
         try {

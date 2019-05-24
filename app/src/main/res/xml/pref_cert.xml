@@ -1,0 +1,23 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/Artist"
+        android:inputType="textCapWords"
+        android:key="artist"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/Artist" />
+
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/Location"
+        android:inputType="textCapWords"
+        android:key="location"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="@string/Location" />
+
+</PreferenceScreen>
