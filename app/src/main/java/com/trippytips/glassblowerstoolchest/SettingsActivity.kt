@@ -137,10 +137,15 @@ class SettingsActivity : AppCompatPreferenceActivity() {
             // to their values. When their values change, their summaries are
             // updated to reflect the new value, per the Android Design
             // guidelines.
-            //bindPreferenceSummaryToValue(findPreference("artist"))
             bindPreferenceSummaryToValue(findPreference("artist"))
             bindPreferenceSummaryToValue(findPreference("location"))
-            //bindPreferenceSummaryToValue(findPreference("location"))
+            bindPreferenceSummaryToValue(findPreference("field1"))
+            bindPreferenceSummaryToValue(findPreference("field2"))
+            bindPreferenceSummaryToValue(findPreference("field3"))
+            bindPreferenceSummaryToValue(findPreference("field4"))
+            bindPreferenceSummaryToValue(findPreference("field5"))
+            bindPreferenceSummaryToValue(findPreference("field6"))
+
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {

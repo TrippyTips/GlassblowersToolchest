@@ -20,4 +20,59 @@
         android:singleLine="true"
         android:title="@string/Location" />
 
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/DateCreated"
+        android:inputType="textCapWords"
+        android:key="field1"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Field 1" />
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/certSize"
+        android:inputType="textCapWords"
+        android:key="field2"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Field 2" />
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/certWeight"
+        android:inputType="textCapWords"
+        android:key="field3"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Field 3" />
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/certTechnique"
+        android:inputType="textCapWords"
+        android:key="field4"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Field 4" />
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/certSigReads"
+        android:inputType="textCapWords"
+        android:key="field5"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Field 5" />
+    <EditTextPreference
+        android:capitalize="words"
+        android:defaultValue="@string/certOriginalOwner"
+        android:inputType="textCapWords"
+        android:key="field6"
+        android:maxLines="1"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Field 6" />
+
 </PreferenceScreen>

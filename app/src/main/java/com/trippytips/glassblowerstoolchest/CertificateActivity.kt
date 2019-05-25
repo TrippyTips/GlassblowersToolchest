@@ -12,19 +12,31 @@ import android.view.View
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
-import android.widget.Spinner
-import android.widget.Toast
+import android.widget.*
 import kotlinx.android.synthetic.main.activity_certificate.*
 import java.text.FieldPosition
 
 class CertificateActivity : AppCompatActivity() {
     lateinit var spinner: Spinner
+    lateinit var etField1: EditText
+    lateinit var etField2: EditText
+    lateinit var etField3: EditText
+    lateinit var etField4: EditText
+    lateinit var etField5: EditText
+    lateinit var etField6: EditText
+
     private var myWebView: WebView? = null
     var selectedBG = "1"
     var artist = ""
     var location = ""
+    var field1 = ""
+    var field2 = ""
+    var field3 = ""
+    var field4 = ""
+    var field5 = ""
+    var field6 = ""
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_certificate)
@@ -76,16 +88,50 @@ class CertificateActivity : AppCompatActivity() {
     */
     //Load the values with Preferences
     fun getSharedPrefs(){
+        //assign organized/readable values to the edit text views
+        etField1 = findViewById(R.id.etCertDateCreated)
+        etField2 = findViewById(R.id.etCertSize)
+        etField3 = findViewById(R.id.etCertWeight)
+        etField4 = findViewById(R.id.etCertTechnique)
+        etField5 = findViewById(R.id.etCertSignatureReadsAs)
+        etField6 = findViewById(R.id.etOriginalOwner)
+
         //Get the SharedPreferences
         val prefs = PreferenceManager.getDefaultSharedPreferences(this)
+
         //Set the COE from SharedPreferences
         val pref_location = prefs.getString("location", "")
         if (pref_location != null){location = pref_location}
+
         //Set the measurements to Standard or Metric
         val pref_artist = prefs.getString("artist", "")
         if (pref_artist != null){artist = pref_artist}
+
+        //Set the custom fields
+        val pref_field1 = prefs.getString("field1", "Date Created")
+        val pref_field2 = prefs.getString("field2", "Size of Work")
+        val pref_field3 = prefs.getString("field3", "Weight of Work")
+        val pref_field4 = prefs.getString("field4", "Techniques Used")
+        val pref_field5 = prefs.getString("field5", "Signature Reads")
+        val pref_field6 = prefs.getString("field6", "Origin")
+        etField1.hint = pref_field1
+        etField2.hint = pref_field2
+        etField3.hint = pref_field3
+        etField4.hint = pref_field4
+        etField5.hint = pref_field5
+        etField6.hint = pref_field6
+        if (pref_field1 != null) {field1 = pref_field1}else{field1 = "Date Created"}
+        if (pref_field2 != null) {field2 = pref_field2}else{field2 = "Size of Work"}
+        if (pref_field3 != null) {field3 = pref_field3}else{field3 = "Weight of Work"}
+        if (pref_field4 != null) {field4 = pref_field4}else{field4 = "Techniques Used"}
+        if (pref_field5 != null) {field5 = pref_field5}else{field5 = "Signature Reads"}
+        if (pref_field6 != null) {field6 = pref_field6}else{field6 = "Origin"}
+
+        //Set the values from preferences to the appropriate fields
         etCertName.setText(artist)
         etOriginalOwner.setText(location)
+
+
     }
     fun getBG(){
         //Set up Background Spinner
@@ -221,28 +267,28 @@ class CertificateActivity : AppCompatActivity() {
                 "    <td class=\"tg-2be4\" colspan=\"2\">by $artist</td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-wtjf\">Created on </td>\n" +
+                "    <td class=\"tg-wtjf\">$field1</td>\n" +
                 "    <td class=\"tg-waxd\">$date</td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-wtjf\">Size</td>\n" +
+                "    <td class=\"tg-wtjf\">$field2</td>\n" +
                 "    <td class=\"tg-waxd\">$size</td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-wtjf\">Weight</td>\n" +
+                "    <td class=\"tg-wtjf\">$field3</td>\n" +
                 "    <td class=\"tg-waxd\">$weight</td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-wtjf\">Technique Used</td>\n" +
+                "    <td class=\"tg-wtjf\">$field4</td>\n" +
                 "    <td class=\"tg-waxd\">$technique</td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-wtjf\">Origin</td>\n" +
-                "    <td class=\"tg-waxd\">$ogowner</td>\n" +
+                "    <td class=\"tg-wtjf\">$field5</td>\n" +
+                "    <td class=\"tg-waxd\">$sigreadsas</td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
-                "    <td class=\"tg-wtjf\">Signature Reads</td>\n" +
-                "    <td class=\"tg-waxd\">$sigreadsas<br></td>\n" +
+                "    <td class=\"tg-wtjf\">$field6</td>\n" +
+                "    <td class=\"tg-waxd\">$ogowner<br></td>\n" +
                 "  </tr>\n" +
                 "  <tr>\n" +
                 "    <td class=\"tg-ts09\" colspan=\"2\"><span style=\"font-weight:bold\">Signature _______________________________________________Date_______________</span></td>\n" +
